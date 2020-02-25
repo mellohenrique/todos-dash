@@ -6,6 +6,8 @@ library(shinythemes)
 library(simulador.fundeb)
 library(shinyWidgets)
 library(tidyverse)
+options(shiny.maxRequestSize=30*1024^2)
+simplifica_text_input <- function(texto){stringr::str_split(texto, ",", simplify = TRUE) %>% as_vector %>% as.numeric()}
 
 # Ui ----
 ui <- dashboardPage(
@@ -32,7 +34,13 @@ ui <- dashboardPage(
                     choiceNames = c("Verdadeiro", "Falso"),
                     label = "Utilizara a ponderação socioeconomica na distribuição do fundo?"
                   ),
-                  
+                  radioButtons(
+                    inputId = "condicao_rede",
+                    choiceValues = c(TRUE, FALSE),
+                    selected = TRUE,
+                    choiceNames = c("Verdadeiro", "Falso"),
+                    label = "Altera a ponderação da rede educacional se esta é difere entre redes estaduais e municipais?"
+                  ),
                   radioButtons(
                     inputId = "equalizacao_socio",
                     choiceValues = c(TRUE, FALSE),
@@ -112,52 +120,97 @@ ui <- dashboardPage(
                   max = 2,
                   value = c(1, 1.3)
                 )),
-                box(actionButton("botao", "simular")),
-                box(dataTableOutput("summary_table"))
+                box(actionButton("botao", "simular"))),
+      fluidRow(
+                box(DT::dataTableOutput("summary_table"))
               )))))
 
 # Server ----
 server <- function(input, output) {
+  
+  alunos <- reactive({
+    inFile <- input$dados_alunos
+    if (is.null(inFile))
+      return(NULL)
+    df <- read_csv2(inFile$datapath)
+    return(df)
+  })
+  ponderador_alunos <- reactive({
+    inFile <- input$ponderador_alunos
+    if (is.null(inFile))
+      return(NULL)
+    df <- read_csv2(inFile$datapath)
+    return(df)
+  })
+  socioeco <- reactive({
+    inFile <- input$dados_social
+    if (is.null(inFile))
+      return(NULL)
+    df <- read_csv2(inFile$datapath)
+    return(df)
+  })
+  financeiro <- reactive({
+    inFile <- input$dados_financeiro
+    if (is.null(inFile))
+      return(NULL)
+    df <- read_csv2(inFile$datapath)
+    return(df)
+  })
+  
   data <- eventReactive(input$botao, {
+    
     if(input$modelo == "fundeb"){
     df <-
       simular_modelo_fundeb_tempo(
-        input$dados_alunos,
-        input$ponderador_alunos,
-        input$dados_socio,
-        input$dados_financeiro,
+        alunos(),
+        ponderador_alunos(),
+        socioeco(),
+        financeiro(),
+        condicao_rede = input$condicao_rede,
         min_social = input$parametro_social[[1]],
         max_social = input$parametro_social[[2]],
         min_financas = input$parametro_financeiro[[1]],
-        max_financas = input$parametro_financeiro[[2]]
+        max_financas = input$parametro_financeiro[[2]],
+        auxilio_federal = simplifica_text_input(input$auxilio_federal),
+        crescimento_economico = simplifica_text_input(input$crescimento_economico),
+        crescimento_demografico = simplifica_text_input(input$crescimento_demografico)
         
       )} else if(input$modelo == "vat"){
         df <-
           simular_modelo_vat_tempo(
-            input$dados_alunos,
-            input$ponderador_alunos,
-            input$dados_socio,
-            input$dados_financeiro,
+            alunos(),
+            ponderador_alunos(),
+            socioeco(),
+            financeiro(),
+            condicao_rede = input$condicao_rede,
             min_social = input$parametro_social[[1]],
             max_social = input$parametro_social[[2]],
             min_financas = input$parametro_financeiro[[1]],
-            max_financas = input$parametro_financeiro[[2]])
+            max_financas = input$parametro_financeiro[[2]],
+            auxilio_federal = simplifica_text_input(input$auxilio_federal),
+        crescimento_economico = simplifica_text_input(input$crescimento_economico),
+        crescimento_demografico = simplifica_text_input(input$crescimento_demografico))
       }  else if(input$modelo == "hibrido"){
         df <-
           simular_modelo_hibrido_tempo(
-            input$dados_alunos,
-            input$ponderador_alunos,
-            input$dados_socio,
-            input$dados_financeiro,
+            alunos(),
+            ponderador_alunos(),
+            socioeco(),
+            financeiro(),
+            condicao_rede = input$condicao_rede,
             min_social = input$parametro_social[[1]],
             max_social = input$parametro_social[[2]],
             min_financas = input$parametro_financeiro[[1]],
-            max_financas = input$parametro_financeiro[[2]])
+            max_financas = input$parametro_financeiro[[2]],
+        auxilio_federal = simplifica_text_input(input$auxilio_federal),
+        auxilio_federal_vat = simplifica_text_input(input$auxilio_federal_vat),
+        crescimento_economico = simplifica_text_input(input$crescimento_economico),
+        crescimento_demografico = simplifica_text_input(input$crescimento_demografico))
       }
     df
   })
   
-  output$summary_table <- renderDataTable({
+  output$summary_table <- DT::renderDataTable({
     data()
   })
 }
