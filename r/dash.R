@@ -1,11 +1,13 @@
 # Pacotes ----
 
 library(shiny)
+library(shinyWidgets)
 library(markdown)
 library(shinydashboard)
 library(simulador.fundeb)
 library(tidyverse)
 library(knitr)
+library(ineq)
 library(plotly)
 
 # Funções e opções ----
@@ -137,23 +139,36 @@ ui <- dashboardPage(
           )
         ),
       fluidRow(
-        #box(
-          actionButton("botao", "simular")
-         # )
+        box(
+        actionBttn("botao", "simular", style = "jelly", size = "lg", 
+                   block = TRUE)
+         )
       ),
       fluidRow(
-        box(
-          DT::dataTableOutput("simulacao"), width = 12
+        box(width = 12,
+          plotlyOutput("violino")
+          )),
+      fluidRow(
+        box(width = 12,
+          plotlyOutput("ponto_vaa_estado")
           )
         ),
       fluidRow(
+        infoBoxOutput("vaa_medio_ente"),
+        infoBoxOutput("vaa_medio_aluno"),
+        infoBoxOutput("vaa_mediano_ente")
+      ),
+      fluidRow(
+        infoBoxOutput("vaa_minimo_ente", width = 3),
+        infoBoxOutput("vaa_maximo_ente", width = 3),
+        infoBoxOutput("ente_max_vaa", width = 3),
+        infoBoxOutput("ente_min_vaa", width = 3)),
+      fluidRow(),
+      fluidRow(
         box(
-          plotlyOutput("violino")
-          ),
-        box(
-          plotlyOutput("ponto_vaa_estado")
-          )
+          DT::dataTableOutput("simulacao"), width = 12
         )
+      )
       )
     )
     )
@@ -250,19 +265,23 @@ server <- function(input, output) {
   output$simulacao <- DT::renderDataTable({
     data()
   },
+  extensions = 'Buttons',
+  
   options = list(
-    scrollX = TRUE,
     paging = TRUE,
+    scrollX = TRUE,
     searching = TRUE,
-    fixedColumns = TRUE,
     autoWidth = TRUE,
     ordering = TRUE,
     dom = 'tB',
     buttons = c('copy', 'csv', 'excel')
-  ))
+  ),
+  
+  class = "display"
+  )
   
   output$violino <- renderPlotly(ggplotly(data() %>%
-                                 ggplot(aes(x = ano, y = vaa_final, fill = ano, color = ano)) +
+                                 ggplot(aes(x = ano, y = vaa_final, fill = ano)) +
                                   scale_fill_viridis_d()+
                                    theme_bw() + labs(fill = "Ano", x = "Estado", y = "Valor Aluno Ano") +
                                  geom_violin()))
@@ -270,9 +289,9 @@ server <- function(input, output) {
   output$ponto_vaa_estado <- renderPlotly(
     ggplotly(data() %>%
       ggplot(aes(
-        x = codigo_estado, y = vaa_final, fill = ano
+        x = fct_reorder(estado, codigo_estado), y = vaa_final, fill = ano
       )) +
-      geom_boxplot() + scale_fill_viridis_d()+ theme_bw() + labs(fill = "Ano", x = "Estado", y = "Valor Aluno Ano"))
+      geom_boxplot(position = position_dodge2(padding = .2)) + scale_fill_viridis_d()+ theme_bw() + labs(fill = "Ano", x = "Estado", y = "Valor Aluno Ano"))
   )
   
   output$markdown_tutorial <- renderUI({
@@ -282,6 +301,48 @@ server <- function(input, output) {
   output$markdown_todos <- renderUI({
     HTML(markdown::markdownToHTML(knit('../rmd/todos.rmd', quiet = TRUE)))
   })
+  
+  output$vaa_medio_ente <- renderInfoBox({
+    infoBox(
+      "VAA médio por ente", paste0("R$", data()$vaa_final %>% mean() %>% round(digits = 2)), icon = icon("list"),
+      color = "purple"
+    )})
+  
+  output$vaa_medio_aluno <- renderInfoBox({
+    infoBox(
+      "VAA médio por aluno", HTML(paste0("R$", data()$vaa_final %>% weighted.mean(data()$alunos) %>%  round(digits = 2)), icon = icon("list")),
+      color = "purple"
+    )})
+  
+  output$vaa_mediano_ente <- renderInfoBox({
+    infoBox(
+      "VAA mediano por ente", HTML(paste0("R$", data()$vaa_final %>% median() %>% round(digits = 2))), icon = icon("list"),
+      color = "purple"
+    )})
+  
+  output$vaa_minimo_ente <- renderInfoBox({
+    infoBox(
+      "VAA mínimo\n por ente", HTML(paste0("R$", data()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
+      color = "purple"
+    )})
+  
+  output$vaa_maximo_ente <- renderInfoBox({
+    infoBox(
+      "VAA máximo\n por ente", HTML(paste0("R$", data()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
+      color = "purple"
+    )})
+  
+  output$ente_max_vaa <- renderInfoBox({
+    infoBox(
+      "Estado com\n maior VAA médio", HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = 1) %>% pull(estado))), icon = icon("list"),
+      color = "purple"
+    )})
+  
+  output$ente_min_vaa <- renderInfoBox({
+    infoBox(
+      "Estado com\n menor VAA médio", HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
+      color = "purple"
+    )})
 }
 
 # APP ----
