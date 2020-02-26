@@ -1,0 +1,75 @@
+---
+title: "Tutorial"
+author: "Henrique de Assunção"
+date: "25/02/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(simulador.fundeb)
+library(tidyverse)
+```
+
+```{r css, results="asis", echo = FALSE}
+cat('
+<style type="text/css">
+           body {          
+           max-width:100%;
+           padding:0;
+           }
+</style>
+')
+```
+
+# Tutorial
+
+## Modelos
+
+O _dashboard_ disponibiliza 3 modelos para realizar simulações, tanto em um único período como em vários períodos.
+
+1. Modelo FUNDEB, modelo atualmente utilizado no financiamento da educação pelo FUNDEB em que os fundos estaduais são complementados pela União de modo a diminuir as desigualdades de valor aluno ano;
+2. Modelo VAT, modelo alternativo que complementa os recursos totais da educação em estados e municípios, individualmente, de modo a reduzir a desigualdade do valor aluno ano entre os entes;
+3. Modelo Híbrido, modelo que combina os modelo VAT e FUNDEB.
+
+## Tabelas de _Inputs_
+
+As tabelas utilizadas como _input_ devem seguir a seguinte especificação:
+
+```{r alunos, echo = FALSE}
+knitr::kable(head(alunos_teste, 8),
+             caption = "Exemplo de tabela de alunos, 8 primeiras linhas") %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"), full_width = F) 
+```
+
+```{r etapa, echo = FALSE}
+knitr::kable(simulador.fundeb::ponderador_alunos[1:8,], 
+             caption = "Exemplo de pesos das etapas, 8 primeiras linhas") %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"), full_width = F)
+```
+
+```{r financas, echo = FALSE}
+knitr::kable(financas_teste,
+             caption = "Exemplo de tabela de financas")%>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"), full_width = F) 
+
+```
+
+```{r socioeco, echo = FALSE}
+knitr::kable(socioeco_teste,
+             caption = "Exemplo de tabela de dados socioeconômicos") %>%
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover"), full_width = F) 
+
+```
+
+## Opções
+
+Todos os modelos apresentam opções parâmetros customizáveis que permitem ao usuário flexibilidade na análise do financiamento. Certos parâmetros são comuns a todas as funções enquanto outros são específicos. Todas as funções apresentam os seguintes parâmetros:
+
+* **auxilio_federal**: percentual do fundo (somatório dos fundos estaduais) que a União complementará;
+* **equalizacao_socio**: parâmetro lógico que controla se a equalização do fundo considerara o vetor de alunos ponderados por etapa ou de alunos ponderados por etapa e informações socioeconomicas;
+* **distribuicao_fundo_estadual_socio**: parâmetro logico que controla se a distribuicao do fundo estadual considerara o vetor de alunos ponderados por etapa ou de alunos ponderados por etapa e informações socioeconomicas;
+* **min_social**: peso mínimo dado a informação socioeconômica;
+* **max_social**: peso máximo dado a informação socioeconômica;
+* **min_financas**: peso mínimo dado a informação de finanças;
+* **max_financas**: peso máximo dado a informação de finanças.
