@@ -19,7 +19,7 @@ simplifica_text_input <-
 
 # Ui ----
 ui <- dashboardPage(
-  dashboardHeader(),
+  dashboardHeader(title = "Simulador FUNDEB"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Como usar", tabName = "tutorial"),
@@ -280,19 +280,28 @@ server <- function(input, output) {
   class = "display"
   )
   
-  output$violino <- renderPlotly(ggplotly(data() %>%
-                                 ggplot(aes(x = ano, y = vaa_final, fill = ano)) +
-                                  scale_fill_viridis_d()+
-                                   theme_bw() + labs(fill = "Ano", x = "Estado", y = "Valor Aluno Ano") +
-                                 geom_violin()))
-  
-  output$ponto_vaa_estado <- renderPlotly(
+  output$violino <- renderPlotly(
     ggplotly(data() %>%
+               ggplot(aes(x = ano, y = vaa_final, fill = ano)) +
+               scale_fill_viridis_d()+
+               theme_bw() +
+               guides(fill=FALSE) + 
+               labs(fill = "", x = "Ano", y = "Valor Aluno Ano") +
+               geom_violin()))
+  
+  output$ponto_vaa_estado <- renderPlotly({ggplotly(
+    data() %>%
       ggplot(aes(
-        x = fct_reorder(estado, codigo_estado), y = vaa_final, fill = ano
+        x = fct_reorder(estado, codigo_estado),
+        y = vaa_final,
+        fill = ano
       )) +
-      geom_boxplot(position = position_dodge2(padding = .2)) + scale_fill_viridis_d()+ theme_bw() + labs(fill = "Ano", x = "Estado", y = "Valor Aluno Ano"))
-  )
+      geom_boxplot() + 
+      scale_fill_viridis_d() + 
+      theme_bw() + 
+      labs(fill = "Ano", x = "Estado", y = "Valor Aluno Ano")
+  ) %>%
+      layout(boxmode = "group")})
   
   output$markdown_tutorial <- renderUI({
     HTML(markdown::markdownToHTML(knit('../rmd/tutorial.rmd', quiet = TRUE)))
@@ -304,13 +313,13 @@ server <- function(input, output) {
   
   output$vaa_medio_ente <- renderInfoBox({
     infoBox(
-      "VAA médio por ente", paste0("R$", data()$vaa_final %>% mean() %>% round(digits = 2)), icon = icon("list"),
+      HTML("VAA médio<br/>por ente"), paste0("R$", data()$vaa_final %>% mean() %>% round(digits = 2)), icon = icon("list"),
       color = "purple"
     )})
   
   output$vaa_medio_aluno <- renderInfoBox({
     infoBox(
-      "VAA médio por aluno", HTML(paste0("R$", data()$vaa_final %>% weighted.mean(data()$alunos) %>%  round(digits = 2)), icon = icon("list")),
+      "VAA médio por ente", HTML(paste0("R$", data()$vaa_final %>% weighted.mean(data()$alunos) %>%  round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
@@ -322,25 +331,25 @@ server <- function(input, output) {
   
   output$vaa_minimo_ente <- renderInfoBox({
     infoBox(
-      "VAA mínimo\n por ente", HTML(paste0("R$", data()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
+      "VAA mínimo por ente", HTML(paste0("R$", data()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
   output$vaa_maximo_ente <- renderInfoBox({
     infoBox(
-      "VAA máximo\n por ente", HTML(paste0("R$", data()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
+      "VAA máximo por ente", HTML(paste0("R$", data()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
   output$ente_max_vaa <- renderInfoBox({
     infoBox(
-      "Estado com\n maior VAA médio", HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = 1) %>% pull(estado))), icon = icon("list"),
+      HTML("Estado com<br/>maior VAA médio"), HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = 1) %>% pull(estado))), icon = icon("list"),
       color = "purple"
     )})
   
   output$ente_min_vaa <- renderInfoBox({
     infoBox(
-      "Estado com\n menor VAA médio", HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
+      "Estado com menor VAA médio", HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
       color = "purple"
     )})
 }
