@@ -1,11 +1,12 @@
 # Pacotes ----
 
 library(shiny)
+library(markdown)
 library(shinydashboard)
-library(shinythemes)
 library(simulador.fundeb)
-library(shinyWidgets)
 library(tidyverse)
+library(knitr)
+library(prettydoc)
 options(shiny.maxRequestSize=30*1024^2)
 simplifica_text_input <- function(texto){stringr::str_split(texto, ",", simplify = TRUE) %>% as_vector %>% as.numeric()}
 
@@ -18,11 +19,17 @@ ui <- dashboardPage(
       menuItem("Dashboard",
                tabName = "dashboard",
                icon = icon("dashboard")),
-      menuItem("Todos", tabName = "widgets", icon = icon("th"))
+      menuItem("Todos", tabName = "todos", icon = icon("th"))
     )),
   dashboardBody(
     tabItems(
       # First tab content ====
+      tabItem(tabName = "tutorial",
+              fluidPage(box(width = 12,
+                            uiOutput('markdown_tutorial')))),
+      tabItem(tabName = "todos",
+              fluidPage(box(width = 12,
+                            uiOutput('markdown_todos')))),
       # Second tab content ====
       tabItem(tabName = "dashboard",
               fluidRow(
@@ -31,21 +38,21 @@ ui <- dashboardPage(
                     inputId = "distribuicao_social",
                     choiceValues = c(TRUE, FALSE),
                     selected = FALSE,
-                    choiceNames = c("Verdadeiro", "Falso"),
+                    choiceNames = c("Sim", "Não"),
                     label = "Utilizara a ponderação socioeconomica na distribuição do fundo?"
                   ),
                   radioButtons(
                     inputId = "condicao_rede",
                     choiceValues = c(TRUE, FALSE),
                     selected = TRUE,
-                    choiceNames = c("Verdadeiro", "Falso"),
+                    choiceNames = c("Sim", "Não"),
                     label = "Altera a ponderação da rede educacional se esta é difere entre redes estaduais e municipais?"
                   ),
                   radioButtons(
                     inputId = "equalizacao_socio",
                     choiceValues = c(TRUE, FALSE),
                     selected = FALSE,
-                    choiceNames = c("Verdadeiro", "Falso"),
+                    choiceNames = c("Sim", "Não"),
                     label = "Utilizara a ponderação socioeconomica na equalização do fundo?"
                   ),
                   radioButtons(
@@ -122,8 +129,12 @@ ui <- dashboardPage(
                 )),
                 box(actionButton("botao", "simular"))),
       fluidRow(
-                box(DT::dataTableOutput("summary_table"))
-              )))))
+                box(DT::dataTableOutput("summary_table"), width = 12)
+              ),
+      fluidRow(
+        box(plotOutput("violino")),
+        box(plotOutput("ponto_vaa_estado"))
+      )))))
 
 # Server ----
 server <- function(input, output) {
@@ -211,9 +222,38 @@ server <- function(input, output) {
   })
   
   output$summary_table <- DT::renderDataTable({
-    data()
+    data() 
+  }, 
+  options = list(scrollX = TRUE,
+                 paging = TRUE,
+                 searching = TRUE,
+                 fixedColumns = TRUE,
+                 autoWidth = TRUE,
+                 ordering = TRUE,
+                 dom = 'tB',
+                 buttons = c('copy', 'csv', 'excel')))
+  
+  output$violino <- renderPlot(
+    data() %>% 
+      ggplot(aes(x = ano, y = vaa_final)) +
+      geom_violin()
+                                )
+  output$ponto_vaa_estado <- renderPlot(
+    data() %>% 
+      ggplot(aes(x = codigo_estado, y = vaa_final)) +
+               geom_jitter()
+  )
+  
+  output$markdown_tutorial <- renderUI({
+    HTML(markdown::markdownToHTML(knit('../rmd/tutorial.rmd', quiet = TRUE)))
   })
+  
+  output$markdown_todos <- renderUI({
+    HTML(markdown::markdownToHTML(knit('../rmd/todos.rmd', quiet = TRUE)))
+  })
+  
 }
+
 
 # APP ----
 shinyApp(ui = ui, server = server)
