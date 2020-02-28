@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE)
 library(simulador.fundeb)
 library(tidyverse)
 ```
@@ -37,26 +38,26 @@ O _dashboard_ disponibiliza 3 modelos para realizar simulações, tanto em um ú
 As tabelas utilizadas como _input_ devem seguir a seguinte especificação:
 
 ```{r alunos, echo = FALSE}
-knitr::kable(head(alunos_teste, 8),
+knitr::kable(head(alunos_teste, 8), format = "html",
              caption = "Exemplo de tabela de alunos, 8 primeiras linhas") %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"), full_width = F) 
 ```
 
 ```{r etapa, echo = FALSE}
-knitr::kable(simulador.fundeb::ponderador_alunos[1:8,], 
+knitr::kable(simulador.fundeb::ponderador_alunos[1:8,], format = "html",
              caption = "Exemplo de pesos das etapas, 8 primeiras linhas") %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"), full_width = F)
 ```
 
 ```{r financas, echo = FALSE}
-knitr::kable(financas_teste,
+knitr::kable(financas_teste,format = "html",
              caption = "Exemplo de tabela de financas")%>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"), full_width = F) 
 
 ```
 
 ```{r socioeco, echo = FALSE}
-knitr::kable(socioeco_teste,
+knitr::kable(socioeco_teste,format = "html",
              caption = "Exemplo de tabela de dados socioeconômicos") %>%
   kableExtra::kable_styling(bootstrap_options = c("striped", "hover"), full_width = F) 
 
@@ -67,9 +68,14 @@ knitr::kable(socioeco_teste,
 Todos os modelos apresentam opções parâmetros customizáveis que permitem ao usuário flexibilidade na análise do financiamento. Certos parâmetros são comuns a todas as funções enquanto outros são específicos. Todas as funções apresentam os seguintes parâmetros:
 
 * **auxilio_federal**: percentual do fundo (somatório dos fundos estaduais) que a União complementará;
+,* **auxilio_federal_vat**: percentual do fundo (somatório dos fundos estaduais) que a União complementará na segunda etapa de complementação do modelo VAT;
+* **crescimento_economico**: vetor númerico de crescimento econômico, especificamente do FUNDEB e das demais receitas. O primeiro valor representa a taxa de crescimento do primeiro ano em relação aos dados de finanças colocados como _input_, o segundo valor representa a taxa de crescimento em relação aos valores de finanças do primeiro ano, e assim sucessivamente;
+* **crescimento_demografico**: vetor numérico de crescimento demográfico para alunos.
 * **equalizacao_socio**: parâmetro lógico que controla se a equalização do fundo considerara o vetor de alunos ponderados por etapa ou de alunos ponderados por etapa e informações socioeconomicas;
 * **distribuicao_fundo_estadual_socio**: parâmetro logico que controla se a distribuicao do fundo estadual considerara o vetor de alunos ponderados por etapa ou de alunos ponderados por etapa e informações socioeconomicas;
 * **min_social**: peso mínimo dado a informação socioeconômica;
 * **max_social**: peso máximo dado a informação socioeconômica;
 * **min_financas**: peso mínimo dado a informação de finanças;
 * **max_financas**: peso máximo dado a informação de finanças.
+
+> **_Aviso:_**  É importante que as variáveis **auxilio_federal**, **auxilio_federal_vat**, **crescimento_economico** e **crescimento_demografico** possua o mesmo tamanho.
