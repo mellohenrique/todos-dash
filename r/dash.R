@@ -351,13 +351,13 @@ server <- function(input, output) {
   
   output$vaa_minimo_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA mínimo<br/>por ente"), HTML(paste0("R$", data()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
+      HTML("VAA mínimo<br/>de um ente"), HTML(paste0("R$", data()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
   output$vaa_maximo_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA máximo<br/>por ente"), HTML(paste0("R$", data()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
+      HTML("VAA máximo<br/>de um ente"), HTML(paste0("R$", data()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
