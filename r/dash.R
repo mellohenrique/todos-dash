@@ -7,7 +7,6 @@ library(shinydashboard)
 library(simulador.fundeb)
 library(tidyverse)
 library(knitr)
-library(ineq)
 library(plotly)
 
 # Funções e opções ----
@@ -70,7 +69,8 @@ ui <- dashboardPage(
         box(
           radioButtons(
             inputId = "distribuicao_social",
-            choiceValues = c(TRUE, FALSE),selected = FALSE,
+            choiceValues = c(TRUE, FALSE),
+            selected = FALSE,
             choiceNames = c("Sim", "Não"),
             label = "Utilizara a ponderação socioeconomica na distribuição do fundo?"),
           radioButtons(
@@ -178,6 +178,7 @@ ui <- dashboardPage(
 
 # Server ----
 server <- function(input, output) {
+  
   alunos <- reactive({
     inFile <- input$dados_alunos
     if (is.null(inFile))
@@ -215,6 +216,9 @@ server <- function(input, output) {
           ponderador_alunos(),
           socioeco(),
           financeiro(),
+          considerar = input$considerar,
+          distribuicao_fundo_estadual_socio = as.logical(input$distribuicao_social),
+          equalizacao_socio = input$equalizacao_socio,
           condicao_rede = input$condicao_rede,
           min_social = input$parametro_social[[1]],
           max_social = input$parametro_social[[2]],
@@ -232,6 +236,9 @@ server <- function(input, output) {
           ponderador_alunos(),
           socioeco(),
           financeiro(),
+          considerar = input$considerar,
+          distribuicao_fundo_estadual_socio = as.logical(input$distribuicao_social),
+          equalizacao_socio = input$equalizacao_socio,
           condicao_rede = input$condicao_rede,
           min_social = input$parametro_social[[1]],
           max_social = input$parametro_social[[2]],
@@ -248,7 +255,10 @@ server <- function(input, output) {
           ponderador_alunos(),
           socioeco(),
           financeiro(),
+          considerar = input$considerar,
           condicao_rede = input$condicao_rede,
+          distribuicao_fundo_estadual_socio = as.logical(input$distribuicao_social),
+          equalizacao_socio = input$equalizacao_social,
           min_social = input$parametro_social[[1]],
           max_social = input$parametro_social[[2]],
           min_financas = input$parametro_financeiro[[1]],
@@ -266,19 +276,15 @@ server <- function(input, output) {
     data()
   },
   extensions = 'Buttons',
-  
   options = list(
-    paging = TRUE,
-    scrollX = TRUE,
-    searching = TRUE,
+    fixedColumns = TRUE,
     autoWidth = TRUE,
     ordering = TRUE,
-    dom = 'tB',
+    dom = 'Bftsp',
     buttons = c('copy', 'csv', 'excel')
-  ),
-  
-  class = "display"
   )
+  )
+  
   
   output$violino <- renderPlotly(
     ggplotly(data() %>%
@@ -318,26 +324,40 @@ server <- function(input, output) {
     )})
   
   output$vaa_medio_aluno <- renderInfoBox({
-    infoBox(
-      "VAA médio por ente", HTML(paste0("R$", data()$vaa_final %>% weighted.mean(data()$alunos) %>%  round(digits = 2))), icon = icon("list"),
-      color = "purple"
-    )})
+    if (input$distribuicao_social) {
+      infoBox(HTML("VAA médio<br/>por aluno"),
+              HTML(paste0(
+                "R$",
+                data()$vaa_final %>% weighted.mean(data()$alunos_socioeco) %>%  round(digits = 2)
+              )),
+              icon = icon("list"),
+              color = "purple")
+    } else {
+      infoBox(HTML("VAA médio<br/>por ente"),
+              HTML(paste0(
+                "R$",
+                data()$vaa_final %>% weighted.mean(data()$alunos) %>%  round(digits = 2)
+              )),
+              icon = icon("list"),
+              color = "purple")
+    }
+  })
   
   output$vaa_mediano_ente <- renderInfoBox({
     infoBox(
-      "VAA mediano por ente", HTML(paste0("R$", data()$vaa_final %>% median() %>% round(digits = 2))), icon = icon("list"),
+      HTML("VAA mediano<br/>por ente"), HTML(paste0("R$", data()$vaa_final %>% median() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
   output$vaa_minimo_ente <- renderInfoBox({
     infoBox(
-      "VAA mínimo por ente", HTML(paste0("R$", data()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
+      HTML("VAA mínimo<br/>por ente"), HTML(paste0("R$", data()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
   output$vaa_maximo_ente <- renderInfoBox({
     infoBox(
-      "VAA máximo por ente", HTML(paste0("R$", data()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
+      HTML("VAA máximo<br/>por ente"), HTML(paste0("R$", data()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
@@ -349,9 +369,10 @@ server <- function(input, output) {
   
   output$ente_min_vaa <- renderInfoBox({
     infoBox(
-      "Estado com menor VAA médio", HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
+      HTML("Estado com<br/>menor VAA médio"), HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
       color = "purple"
     )})
+
 }
 
 # APP ----
