@@ -4,6 +4,7 @@ library(shiny)
 library(shinyWidgets)
 library(markdown)
 library(shinydashboard)
+library(shinycssloaders)
 library(simulador.fundeb)
 library(tidyverse)
 library(knitr)
@@ -72,13 +73,13 @@ ui <- dashboardPage(
             choiceValues = c(TRUE, FALSE),
             selected = FALSE,
             choiceNames = c("Sim", "Não"),
-            label = "Utilizara a ponderação socioeconomica na distribuição do fundo?"),
+            label = "Utiliza a ponderação socioeconomica na distribuição do fundo?"),
           radioButtons(
             inputId = "equalizacao_socio",
             choiceValues = c(TRUE, FALSE),
             selected = FALSE,
             choiceNames = c("Sim", "Não"),
-            label = "Utilizara a ponderação socioeconomica na equalização do fundo?"),
+            label = "Utiliza a ponderação socioeconomica na equalização do fundo?"),
           radioButtons(
             inputId = "condicao_rede",
             choiceValues = c(TRUE, FALSE),
@@ -93,7 +94,7 @@ ui <- dashboardPage(
             label = "Qual modelo será simulado?"),
           radioButtons(
             inputId = "considerar",
-            choiceValues = c("social", "financeiro", "ambos"),
+            choiceValues = c("social", "financas", "ambos"),
             selected = "ambos",
             choiceNames = c("Critério Social", "Critério financeiro", "Ambos os critérios"),
             label = "Que critérios serão considerados na ponderação socioeconômica")),
@@ -138,31 +139,30 @@ ui <- dashboardPage(
             )
           )
         ),
-      fluidRow(
-        box(
+      fluidRow(column(width = 4),
+        box(width = 4,
         actionBttn("botao", "simular", style = "jelly", size = "lg", 
                    block = TRUE)
          )
       ),
       fluidRow(
         box(width = 12,
-          plotlyOutput("violino")
+          plotlyOutput("violino") %>%  withSpinner()
           )),
       fluidRow(
         box(width = 12,
-          plotlyOutput("ponto_vaa_estado")
+          plotlyOutput("ponto_vaa_estado") %>%  withSpinner()
           )
         ),
       fluidRow(
         infoBoxOutput("vaa_medio_ente"),
-        infoBoxOutput("vaa_medio_aluno"),
-        infoBoxOutput("vaa_mediano_ente")
+        infoBoxOutput("vaa_mediano_ente"),
+        infoBoxOutput("vaa_minimo_ente")
       ),
       fluidRow(
-        infoBoxOutput("vaa_minimo_ente", width = 3),
-        infoBoxOutput("vaa_maximo_ente", width = 3),
-        infoBoxOutput("ente_max_vaa", width = 3),
-        infoBoxOutput("ente_min_vaa", width = 3)),
+        infoBoxOutput("vaa_maximo_ente"),
+        infoBoxOutput("ente_max_vaa"),
+        infoBoxOutput("ente_min_vaa")),
       fluidRow(),
       fluidRow(
         box(
@@ -182,28 +182,28 @@ server <- function(input, output) {
   alunos <- reactive({
     inFile <- input$dados_alunos
     if (is.null(inFile))
-      return(NULL)
+      return(alunos_2015)
     df <- read_csv2(inFile$datapath)
     return(df)
   })
   ponderador_alunos <- reactive({
     inFile <- input$ponderador_alunos
     if (is.null(inFile))
-      return(NULL)
+      return(ponderador_alunos)
     df <- read_csv2(inFile$datapath)
     return(df)
   })
   socioeco <- reactive({
     inFile <- input$dados_social
     if (is.null(inFile))
-      return(NULL)
+      return(socioeco_2015)
     df <- read_csv2(inFile$datapath)
     return(df)
   })
   financeiro <- reactive({
     inFile <- input$dados_financeiro
     if (is.null(inFile))
-      return(NULL)
+      return(financas_2015)
     df <- read_csv2(inFile$datapath)
     return(df)
   })
@@ -258,7 +258,7 @@ server <- function(input, output) {
           considerar = input$considerar,
           condicao_rede = input$condicao_rede,
           distribuicao_fundo_estadual_socio = as.logical(input$distribuicao_social),
-          equalizacao_socio = input$equalizacao_social,
+          equalizacao_socio = input$equalizacao_socio,
           min_social = input$parametro_social[[1]],
           max_social = input$parametro_social[[2]],
           min_financas = input$parametro_financeiro[[1]],
@@ -275,8 +275,11 @@ server <- function(input, output) {
   output$simulacao <- DT::renderDataTable({
     data()
   },
+  server = FALSE,
   extensions = 'Buttons',
   options = list(
+    scrollX = TRUE,
+    scrollY = TRUE,
     fixedColumns = TRUE,
     autoWidth = TRUE,
     ordering = TRUE,
@@ -293,7 +296,7 @@ server <- function(input, output) {
                theme_bw() +
                guides(fill=FALSE) + 
                labs(fill = "", x = "Ano", y = "Valor Aluno Ano") +
-               geom_violin()))
+               geom_boxplot()))
   
   output$ponto_vaa_estado <- renderPlotly({ggplotly(
     data() %>%
@@ -322,26 +325,6 @@ server <- function(input, output) {
       HTML("VAA médio<br/>por ente"), paste0("R$", data()$vaa_final %>% mean() %>% round(digits = 2)), icon = icon("list"),
       color = "purple"
     )})
-  
-  output$vaa_medio_aluno <- renderInfoBox({
-    if (input$distribuicao_social) {
-      infoBox(HTML("VAA médio<br/>por aluno"),
-              HTML(paste0(
-                "R$",
-                data()$vaa_final %>% weighted.mean(data()$alunos_socioeco) %>%  round(digits = 2)
-              )),
-              icon = icon("list"),
-              color = "purple")
-    } else {
-      infoBox(HTML("VAA médio<br/>por ente"),
-              HTML(paste0(
-                "R$",
-                data()$vaa_final %>% weighted.mean(data()$alunos) %>%  round(digits = 2)
-              )),
-              icon = icon("list"),
-              color = "purple")
-    }
-  })
   
   output$vaa_mediano_ente <- renderInfoBox({
     infoBox(

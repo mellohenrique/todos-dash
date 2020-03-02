@@ -27,7 +27,7 @@ cat('
 
 ## Modelos
 
-O _dashboard_ disponibiliza 3 modelos para realizar simulações, tanto em um único período como em vários períodos.
+O _dashboard_ disponibiliza 3 modelos para realizar simulações, tanto em um único período como em vários períodos. 
 
 1. Modelo FUNDEB, modelo atualmente utilizado no financiamento da educação pelo FUNDEB em que os fundos estaduais são complementados pela União de modo a diminuir as desigualdades de valor aluno ano;
 2. Modelo VAT, modelo alternativo que complementa os recursos totais da educação em estados e municípios, individualmente, de modo a reduzir a desigualdade do valor aluno ano entre os entes;
@@ -35,7 +35,9 @@ O _dashboard_ disponibiliza 3 modelos para realizar simulações, tanto em um ú
 
 ## Tabelas de _Inputs_
 
-As tabelas utilizadas como _input_ devem seguir a seguinte especificação:
+O usuário pode inserir tabelas com dados de alunos, peso de alunos por etapa de ensino, informações socioeconômicas e informações financeiras, ou utilizar os dados para o ano de 2015 providos pelo Todos pela Educação. Caso não se coloque nenhuma tabela, a simulação será feita com os dados de 2015. As tabelas utilizadas como _input_ devem seguir a seguinte especificação:
+
+> **_Aviso:_**  É importante que as tabelas sejam disponibilizadas em formato CSV padrão brasileiro (colunas separadas por ";", no R esse formato é chamado de csv2).
 
 ```{r alunos, echo = FALSE}
 knitr::kable(head(alunos_teste, 8), format = "html",
