@@ -12,6 +12,7 @@ library(plotly)
 
 # Funções e opções ----
 options(shiny.maxRequestSize = 30 * 1024 ^ 2)
+
 simplifica_text_input <-
   function(texto) {
     stringr::str_split(texto, ",", simplify = TRUE) %>% as_vector %>% as.numeric()
@@ -313,11 +314,11 @@ server <- function(input, output) {
       layout(boxmode = "group")})
   
   output$markdown_tutorial <- renderUI({
-    HTML(markdown::markdownToHTML(knit('../rmd/tutorial.rmd', quiet = TRUE)))
+    HTML(markdown::markdownToHTML(knit('rmd/tutorial.rmd', quiet = TRUE)))
   })
   
   output$markdown_todos <- renderUI({
-    HTML(markdown::markdownToHTML(knit('../rmd/todos.rmd', quiet = TRUE)))
+    HTML(markdown::markdownToHTML(knit('rmd/todos.rmd', quiet = TRUE)))
   })
   
   output$vaa_medio_ente <- renderInfoBox({
