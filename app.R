@@ -163,7 +163,13 @@ ui <- dashboardPage(
         infoBoxOutput("vaa_minimo_ente"),
         infoBoxOutput("vaa_maximo_ente"),
         infoBoxOutput("ente_max_vaa"),
-        infoBoxOutput("ente_min_vaa")),
+        infoBoxOutput("ente_min_vaa"),
+        infoBoxOutput("inter_quartil"),
+        infoBoxOutput("inter_decil"),
+        infoBoxOutput("max_min"),
+        infoBoxOutput("desvio_padrao"),
+        infoBoxOutput("desvio_padrao_somatorio"),
+        infoBoxOutput("gini")),
       fluidRow(),
       fluidRow(
         box(
@@ -362,32 +368,32 @@ server <- function(session, input, output) {
   ## Medidas de desvio
   output$inter_quartil <- renderInfoBox({
     infoBox(
-      HTML("Razão interquantil"), HTML(paste0(data_resumo() %>% summarise(resumo = quantile(vaa_final, 0.75)/quantile(vaa_final, 0.25)) %>% pull(resumo))), icon = icon("list"),
+      HTML("Razão interquantil"), HTML(paste0(data_resumo() %>% summarise(resumo = (quantile(vaa_final, 0.75)/quantile(vaa_final, 0.25)) %>% round(2)) %>% pull(resumo))), icon = icon("list"),
       color = "purple"
     )})
   output$inter_decil <- renderInfoBox({
     infoBox(
-      HTML("Razão interdecil"), HTML(paste0(data_resumo() %>% summarise(resumo = quantile(vaa_final, 0.9)/quantile(vaa_final, 0.1)) %>% pull(resumo))), icon = icon("list"),
+      HTML("Razão interdecil"), HTML(paste0(data_resumo() %>% summarise(resumo = (quantile(vaa_final, 0.9)/quantile(vaa_final, 0.1)) %>% round(2)) %>% pull(resumo))), icon = icon("list"),
       color = "purple"
     )})
   output$max_min <- renderInfoBox({
     infoBox(
-      HTML("Razão interdecil"), HTML(paste0(data_resumo() %>% summarise(resumo = max(vaa_final)/min(vaa_final)) %>% pull(resumo))), icon = icon("list"),
+      HTML("Razão Máximo<br/>Valor e Mínimo"), HTML(paste0(data_resumo() %>% summarise(resumo = (max(vaa_final)/min(vaa_final)) %>% round(2)) %>% pull(resumo))), icon = icon("list"),
       color = "purple"
     )})
   output$desvio_padrao <- renderInfoBox({
     infoBox(
-      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>% summarise(resumo = sd(vaa_final)) %>% pull(resumo))), icon = icon("list"),
+      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>% summarise(resumo = sd(vaa_final) %>% round(2)) %>% pull(resumo))), icon = icon("list"),
       color = "purple"
     )})
   output$desvio_padrao_somatorio <- renderInfoBox({
     infoBox(
-      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>% group_by(estado) %>%  summarise(resumo = sd(vaa_final)) %>% pull(resumo) %>% sum)), icon = icon("list"),
+      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>%filter(estado != "DF") %>%  group_by(estado) %>%  summarise(resumo = sd(vaa_final) %>% round(2)) %>% pull(resumo) %>% sum())), icon = icon("list"),
       color = "purple"
     )})
-  output$ente_min_vaa <- renderInfoBox({
+  output$gini <- renderInfoBox({
     infoBox(
-      HTML("Estado com<br/>menor VAA médio"), HTML(paste0(data_resumo() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
+      HTML("Índice de Gini"), HTML(paste0(ineq::Gini(data_resumo()$vaa_final) %>% round(2))), icon = icon("list"),
       color = "purple"
     )})
   anos_usados <- reactive({
