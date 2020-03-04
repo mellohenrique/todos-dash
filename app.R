@@ -9,6 +9,7 @@ library(simulador.fundeb)
 library(tidyverse)
 library(knitr)
 library(plotly)
+library(ineq)
 
 # Funções e opções ----
 options(shiny.maxRequestSize = 30 * 1024 ^ 2)
@@ -148,7 +149,7 @@ ui <- dashboardPage(
       ),
       fluidRow(
         box(width = 12,
-          plotlyOutput("violino") %>%  withSpinner()
+          plotlyOutput("vaa_total") %>%  withSpinner()
           )),
       fluidRow(
         box(width = 12,
@@ -156,11 +157,10 @@ ui <- dashboardPage(
           )
         ),
       fluidRow(
+        selectInput(inputId = "filtro_ano", label = "Selecione ano pare medidas resumo", choices = NULL),
         infoBoxOutput("vaa_medio_ente"),
         infoBoxOutput("vaa_mediano_ente"),
-        infoBoxOutput("vaa_minimo_ente")
-      ),
-      fluidRow(
+        infoBoxOutput("vaa_minimo_ente"),
         infoBoxOutput("vaa_maximo_ente"),
         infoBoxOutput("ente_max_vaa"),
         infoBoxOutput("ente_min_vaa")),
@@ -178,7 +178,7 @@ ui <- dashboardPage(
     
 
 # Server ----
-server <- function(input, output) {
+server <- function(session, input, output) {
   
   alunos <- reactive({
     inFile <- input$dados_alunos
@@ -290,7 +290,7 @@ server <- function(input, output) {
   )
   
   
-  output$violino <- renderPlotly(
+  output$vaa_total<- renderPlotly(
     ggplotly(data() %>%
                ggplot(aes(x = ano, y = vaa_final, fill = ano)) +
                scale_fill_viridis_d()+
@@ -321,42 +321,87 @@ server <- function(input, output) {
     HTML(markdown::markdownToHTML(knit('rmd/todos.rmd', quiet = TRUE)))
   })
   
+  # Infoboxes
+  ## Medidas Resumo
   output$vaa_medio_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA médio<br/>por ente"), paste0("R$", data()$vaa_final %>% mean() %>% round(digits = 2)), icon = icon("list"),
+      HTML("VAA médio<br/>por ente"), paste0("R$", data_resumo()$vaa_final %>% mean() %>% round(digits = 2)), icon = icon("list"),
       color = "purple"
     )})
   
   output$vaa_mediano_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA mediano<br/>por ente"), HTML(paste0("R$", data()$vaa_final %>% median() %>% round(digits = 2))), icon = icon("list"),
+      HTML("VAA mediano<br/>por ente"), HTML(paste0("R$", data_resumo()$vaa_final %>% median() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
   output$vaa_minimo_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA mínimo<br/>de um ente"), HTML(paste0("R$", data()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
+      HTML("VAA mínimo<br/>de um ente"), HTML(paste0("R$", data_resumo()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
   output$vaa_maximo_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA máximo<br/>de um ente"), HTML(paste0("R$", data()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
+      HTML("VAA máximo<br/>de um ente"), HTML(paste0("R$", data_resumo()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
       color = "purple"
     )})
   
   output$ente_max_vaa <- renderInfoBox({
     infoBox(
-      HTML("Estado com<br/>maior VAA médio"), HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = 1) %>% pull(estado))), icon = icon("list"),
+      HTML("Estado com<br/>maior VAA médio"), HTML(paste0(data_resumo() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = 1) %>% pull(estado))), icon = icon("list"),
       color = "purple"
     )})
   
   output$ente_min_vaa <- renderInfoBox({
     infoBox(
-      HTML("Estado com<br/>menor VAA médio"), HTML(paste0(data() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
+      HTML("Estado com<br/>menor VAA médio"), HTML(paste0(data_resumo() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
       color = "purple"
     )})
-
+  
+  ## Medidas de desvio
+  output$inter_quartil <- renderInfoBox({
+    infoBox(
+      HTML("Razão interquantil"), HTML(paste0(data_resumo() %>% summarise(resumo = quantile(vaa_final, 0.75)/quantile(vaa_final, 0.25)) %>% pull(resumo))), icon = icon("list"),
+      color = "purple"
+    )})
+  output$inter_decil <- renderInfoBox({
+    infoBox(
+      HTML("Razão interdecil"), HTML(paste0(data_resumo() %>% summarise(resumo = quantile(vaa_final, 0.9)/quantile(vaa_final, 0.1)) %>% pull(resumo))), icon = icon("list"),
+      color = "purple"
+    )})
+  output$max_min <- renderInfoBox({
+    infoBox(
+      HTML("Razão interdecil"), HTML(paste0(data_resumo() %>% summarise(resumo = max(vaa_final)/min(vaa_final)) %>% pull(resumo))), icon = icon("list"),
+      color = "purple"
+    )})
+  output$desvio_padrao <- renderInfoBox({
+    infoBox(
+      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>% summarise(resumo = sd(vaa_final)) %>% pull(resumo))), icon = icon("list"),
+      color = "purple"
+    )})
+  output$desvio_padrao_somatorio <- renderInfoBox({
+    infoBox(
+      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>% group_by(estado) %>%  summarise(resumo = sd(vaa_final)) %>% pull(resumo) %>% sum)), icon = icon("list"),
+      color = "purple"
+    )})
+  output$ente_min_vaa <- renderInfoBox({
+    infoBox(
+      HTML("Estado com<br/>menor VAA médio"), HTML(paste0(data_resumo() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
+      color = "purple"
+    )})
+  anos_usados <- reactive({
+    unique(data()$ano)
+  })
+  
+  observeEvent(anos_usados(), {
+    updateSelectInput(session, inputId = "filtro_ano", choices = anos_usados())
+  })
+  
+  data_resumo <- reactive(
+    data() %>% 
+      filter(ano == input$filtro_ano)
+  )
 }
 
 # APP ----
