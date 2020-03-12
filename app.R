@@ -75,19 +75,19 @@ ui <- dashboardPage(
             choiceValues = c(TRUE, FALSE),
             selected = FALSE,
             choiceNames = c("Sim", "Não"),
-            label = "Utiliza a ponderação socioeconomica na distribuição do fundo?"),
+            label = "Utiliza ponderadores de equidade na distribuição da complementação da União?"),
           radioButtons(
             inputId = "equalizacao_socio",
             choiceValues = c(TRUE, FALSE),
             selected = FALSE,
             choiceNames = c("Sim", "Não"),
-            label = "Utiliza a ponderação socioeconomica na equalização do fundo?"),
+            label = "Utiliza ponderadores de equidade na equalização intraestadual do FUNDEB?"),
           radioButtons(
             inputId = "condicao_rede",
             choiceValues = c(TRUE, FALSE),
             selected = TRUE,
             choiceNames = c("Sim", "Não"),
-            label = "Altera a ponderação da rede educacional se esta é difere entre redes estaduais e municipais?"),
+            label = "Os ponderadores de equidade intraestadual alteram os valores recebidos pela rede estadual?"),
           radioButtons(
             inputId = "modelo",
             choiceValues = c("fundeb", "vaat", "hibrido"),
@@ -98,17 +98,17 @@ ui <- dashboardPage(
             inputId = "considerar",
             choiceValues = c("social", "financas", "ambos"),
             selected = "ambos",
-            choiceNames = c("Critério Social", "Critério financeiro", "Ambos os critérios"),
-            label = "Que critérios serão considerados na ponderação socioeconômica")),
+            choiceNames = c("Fator socioeconômico", "Fator de disponibilidade fiscal", "Ambos os critérios"),
+            label = "Que fatores de equidade serão considerados?")),
         box(
           textInput(
             "complem_uniao",
-            "Auxílio Federal (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
+            "Complementação da União (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
             "0.1, 0.12"
             ),
           textInput(
             "complem_uniao_vaat",
-            "Auxílio Federal na segunda etapa do modelo híbrido (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
+            "Complementação da União na segunda etapa do modelo híbrido (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
             "0.05, 0.06"
             ),
           textInput(
@@ -127,14 +127,14 @@ ui <- dashboardPage(
         box(
           sliderInput(
             "parametro_social",
-            "Define parametro social:",
+            "Define intervalo do fator socioeconômico:",
             min = 1,
             max = 2,
             value = c(1, 1.3)
             ),
           sliderInput(
             "parametro_financeiro",
-            "Define parametro financeiro:",
+            "Define intervalo do fator fiscal:",
             min = 1,
             max = 2,
             value = c(1, 1.3)
