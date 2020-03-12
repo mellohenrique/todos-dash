@@ -143,7 +143,7 @@ ui <- dashboardPage(
         ),
       fluidRow(column(width = 4),
         box(width = 4,
-        actionBttn("botao", "simular", style = "jelly", size = "lg", 
+        actionBttn("botao", "Simular", style = "jelly", size = "lg", 
                    block = TRUE)
          )
       ),
@@ -157,7 +157,9 @@ ui <- dashboardPage(
           )
         ),
       fluidRow(
-        selectInput(inputId = "filtro_ano", label = "Selecione ano pare medidas resumo", choices = NULL),
+        column(width = 4),
+        selectInput(inputId = "filtro_ano", label = "Selecione ano pare medidas resumo", choices = NULL)),
+      fluidRow(
         infoBoxOutput("vaa_medio_ente"),
         infoBoxOutput("vaa_mediano_ente"),
         infoBoxOutput("vaa_minimo_ente"),
@@ -186,6 +188,7 @@ ui <- dashboardPage(
 # Server ----
 server <- function(session, input, output) {
   
+  # Carrega bases ====
   alunos <- reactive({
     inFile <- input$dados_alunos
     if (is.null(inFile))
@@ -214,7 +217,7 @@ server <- function(session, input, output) {
     df <- read_csv2(inFile$datapath)
     return(df)
   })
-  
+  # Simula modelos ====
   data <- eventReactive(input$botao, {
     if (input$modelo == "fundeb") {
       df <-
@@ -279,6 +282,19 @@ server <- function(session, input, output) {
     df
   })
   
+  anos_usados <- reactive({
+    unique(data()$ano)
+  })
+  
+  observeEvent(anos_usados(), {
+    updateSelectInput(session, inputId = "filtro_ano", choices = anos_usados())
+  })
+  
+  data_resumo <- reactive(
+    data() %>% 
+      filter(ano == input$filtro_ano)
+  )
+  
   output$simulacao <- DT::renderDataTable({
     data()
   },
@@ -296,7 +312,7 @@ server <- function(session, input, output) {
   )
   
   
-  output$vaa_total<- renderPlotly(
+  output$vaa_total <- renderPlotly(
     ggplotly(data() %>%
                ggplot(aes(x = ano, y = vaa_final, fill = ano)) +
                scale_fill_viridis_d()+
@@ -316,8 +332,9 @@ server <- function(session, input, output) {
       scale_fill_viridis_d() + 
       theme_bw() + 
       labs(fill = "Ano", x = "Estado", y = "Valor Aluno Ano")
-  ) %>%
-      layout(boxmode = "group")})
+  ) })
+  
+  # Rmarkdown usado ====
   
   output$markdown_tutorial <- renderUI({
     HTML(markdown::markdownToHTML(knit('rmd/tutorial.rmd', quiet = TRUE)))
@@ -396,18 +413,6 @@ server <- function(session, input, output) {
       HTML("Índice de Gini"), HTML(paste0(ineq::Gini(data_resumo()$vaa_final) %>% round(2))), icon = icon("list"),
       color = "purple"
     )})
-  anos_usados <- reactive({
-    unique(data()$ano)
-  })
-  
-  observeEvent(anos_usados(), {
-    updateSelectInput(session, inputId = "filtro_ano", choices = anos_usados())
-  })
-  
-  data_resumo <- reactive(
-    data() %>% 
-      filter(ano == input$filtro_ano)
-  )
 }
 
 # APP ----
