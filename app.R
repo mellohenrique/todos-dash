@@ -90,10 +90,10 @@ ui <- dashboardPage(
             label = "Altera a ponderação da rede educacional se esta é difere entre redes estaduais e municipais?"),
           radioButtons(
             inputId = "modelo",
-            choiceValues = c("fundeb", "vat", "hibrido"),
+            choiceValues = c("fundeb", "vaat", "hibrido"),
             selected = "fundeb",
-            choiceNames = c("Modelo Fundeb", "Modelo VAT", "Modelo Híbrido"),
-            label = "Qual modelo será simulado?"),
+            choiceNames = c("Modelo FUNDEB atual (para fundos estaduais)", "Modelo VAAT", "Modelo Híbrido"),
+            label = "Qual modelo de complementação da União será simulado?"),
           radioButtons(
             inputId = "considerar",
             choiceValues = c("social", "financas", "ambos"),
@@ -102,12 +102,12 @@ ui <- dashboardPage(
             label = "Que critérios serão considerados na ponderação socioeconômica")),
         box(
           textInput(
-            "auxilio_federal",
+            "complem_uniao",
             "Auxílio Federal (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
             "0.1, 0.12"
             ),
           textInput(
-            "auxilio_federal_vat",
+            "complem_uniao_vaat",
             "Auxílio Federal na segunda etapa do modelo híbrido (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
             "0.05, 0.06"
             ),
@@ -224,34 +224,34 @@ server <- function(session, input, output) {
           socioeco(),
           financeiro(),
           considerar = input$considerar,
-          distribuicao_fundo_estadual_socio = as.logical(input$distribuicao_social),
+          fatores_intra_equidade = as.logical(input$distribuicao_social),
           equalizacao_socio = input$equalizacao_socio,
           condicao_rede = input$condicao_rede,
           min_social = input$parametro_social[[1]],
           max_social = input$parametro_social[[2]],
-          min_financas = input$parametro_financeiro[[1]],
-          max_financas = input$parametro_financeiro[[2]],
-          auxilio_federal = simplifica_text_input(input$auxilio_federal),
+          min_disp_fiscal = input$parametro_financeiro[[1]],
+          max_disp_fiscal = input$parametro_financeiro[[2]],
+          complem_uniao = simplifica_text_input(input$complem_uniao),
           crescimento_economico = simplifica_text_input(input$crescimento_economico),
           crescimento_demografico = simplifica_text_input(input$crescimento_demografico)
           
         )
-    } else if (input$modelo == "vat") {
+    } else if (input$modelo == "vaat") {
       df <-
-        simular_modelo_vat_tempo(
+        simular_modelo_vaat_tempo(
           alunos(),
           ponderador_alunos(),
           socioeco(),
           financeiro(),
           considerar = input$considerar,
-          distribuicao_fundo_estadual_socio = as.logical(input$distribuicao_social),
+          fatores_intra_equidade = as.logical(input$distribuicao_social),
           equalizacao_socio = input$equalizacao_socio,
           condicao_rede = input$condicao_rede,
           min_social = input$parametro_social[[1]],
           max_social = input$parametro_social[[2]],
-          min_financas = input$parametro_financeiro[[1]],
-          max_financas = input$parametro_financeiro[[2]],
-          auxilio_federal = simplifica_text_input(input$auxilio_federal),
+          min_disp_fiscal = input$parametro_financeiro[[1]],
+          max_disp_fiscal = input$parametro_financeiro[[2]],
+          complem_uniao = simplifica_text_input(input$complem_uniao),
           crescimento_economico = simplifica_text_input(input$crescimento_economico),
           crescimento_demografico = simplifica_text_input(input$crescimento_demografico)
         )
@@ -264,14 +264,14 @@ server <- function(session, input, output) {
           financeiro(),
           considerar = input$considerar,
           condicao_rede = input$condicao_rede,
-          distribuicao_fundo_estadual_socio = as.logical(input$distribuicao_social),
+          fatores_intra_equidade = as.logical(input$distribuicao_social),
           equalizacao_socio = input$equalizacao_socio,
           min_social = input$parametro_social[[1]],
           max_social = input$parametro_social[[2]],
-          min_financas = input$parametro_financeiro[[1]],
-          max_financas = input$parametro_financeiro[[2]],
-          auxilio_federal = simplifica_text_input(input$auxilio_federal),
-          auxilio_federal_vat = simplifica_text_input(input$auxilio_federal_vat),
+          min_disp_fiscal = input$parametro_financeiro[[1]],
+          max_disp_fiscal = input$parametro_financeiro[[2]],
+          complem_uniao = simplifica_text_input(input$complem_uniao),
+          complem_uniao_vaat = simplifica_text_input(input$complem_uniao_vaat),
           crescimento_economico = simplifica_text_input(input$crescimento_economico),
           crescimento_demografico = simplifica_text_input(input$crescimento_demografico)
         )
