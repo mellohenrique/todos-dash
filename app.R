@@ -217,6 +217,7 @@ server <- function(session, input, output) {
     df <- read_csv2(inFile$datapath)
     return(df)
   })
+  
   # Simula modelos ====
   data <- eventReactive(input$botao, {
     if (input$modelo == "fundeb") {
@@ -282,6 +283,7 @@ server <- function(session, input, output) {
     df
   })
   
+
   anos_usados <- reactive({
     unique(data()$ano)
   })
@@ -344,8 +346,7 @@ server <- function(session, input, output) {
     HTML(markdown::markdownToHTML(knit('rmd/todos.rmd', quiet = TRUE)))
   })
   
-  # Infoboxes
-  ## Medidas Resumo
+  # Infoboxes ====
   output$vaa_medio_ente <- renderInfoBox({
     infoBox(
       HTML("VAA médio<br/>por ente"), paste0("R$", data_resumo()$vaa_final %>% mean() %>% round(digits = 2)), icon = icon("list"),
