@@ -7,9 +7,8 @@ library(shinydashboard)
 library(shinycssloaders)
 library(simulador.fundeb)
 library(dplyr)
-library(ggplot2)
 library(knitr)
-library(plotly)
+library(rbokeh)
 library(ineq)
 
 # Funções e opções ----
@@ -150,7 +149,7 @@ ui <- dashboardPage(
       ),
       fluidRow(
         box(width = 12,
-          plotOutput("vaa_total") %>%  withSpinner()
+          rbokehOutput("vaa_total") %>%  withSpinner()
           )),
       fluidRow(
         box(width = 12,
@@ -285,10 +284,9 @@ server <- function(session, input, output) {
     df
   })
   
-  output$vaa_total <- renderPlot({
-    data() %>% 
-      ggplot(aes(x = estado, fill = ano, y = vaa_final)) +
-               geom_col()
+  output$vaa_total <- renderRbokeh({
+    figure() %>%
+      ly_points(ibge, vaa_final, data = data())
   })
 
   anos_usados <- reactive({
