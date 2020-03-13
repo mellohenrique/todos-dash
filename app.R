@@ -11,6 +11,12 @@ library(knitr)
 library(rbokeh)
 library(ineq)
 
+
+
+for(i in seq_along(dir("modules"))){
+  source(paste0("modules/", dir("modules")[i]), encoding = "UTF-8")
+}
+
 # Funções e opções ----
 options(shiny.maxRequestSize = 30 * 1024 ^ 2)
 
@@ -18,6 +24,7 @@ simplifica_text_input <-
   function(texto) {
     stringr::str_split(texto, ",", simplify = TRUE) %>% as_vector %>% as.numeric()
   }
+
 
 # Ui ----
 ui <- dashboardPage(
@@ -34,7 +41,11 @@ ui <- dashboardPage(
                icon = icon("dashboard")
       ),
       menuItem("Todos", tabName = "todos", icon = icon("th")))),
-  dashboardBody(tabItems(
+  dashboardBody(
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+    ),
+    tabItems(
     # Tutorial tab content ====
     tabItem(tabName = "tutorial",
             fluidPage(
@@ -51,106 +62,18 @@ ui <- dashboardPage(
     tabItem(
       tabName = "dashboard",
       fluidRow(
-        box(collapsible = TRUE,
-            fileInput(
-              "dados_alunos",
-              "Selecione arquivo CSV com dados de alunos",
-              accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-            fileInput(
-              "ponderador_alunos",
-              "Selecione arquivo CSV com dados de peso de etapa de alunos",
-              accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))
-            ),
-        box(collapsible = TRUE,
-            fileInput(
-              "dados_social",
-              "Selecione arquivo CSV com dados de informações sociais",
-              accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv")),
-            fileInput(
-              "dados_financeiro",
-              "Selecione arquivo CSV com dados de finanças",
-              accept = c("text/csv", "text/comma-separated-values,text/plain", ".csv"))
-            )
+        box(select_files_alunos("dashboard")),
+        box(select_files("dashboard"))
         ),
       fluidRow(
-        box(
-          radioButtons(
-            inputId = "distribuicao_social",
-            choiceValues = c(TRUE, FALSE),
-            selected = FALSE,
-            choiceNames = c("Sim", "Não"),
-            label = "Utiliza ponderadores de equidade na distribuição da complementação da União?"),
-          radioButtons(
-            inputId = "equalizacao_socio",
-            choiceValues = c(TRUE, FALSE),
-            selected = FALSE,
-            choiceNames = c("Sim", "Não"),
-            label = "Utiliza ponderadores de equidade na equalização intraestadual do FUNDEB?"),
-          radioButtons(
-            inputId = "condicao_rede",
-            choiceValues = c(TRUE, FALSE),
-            selected = TRUE,
-            choiceNames = c("Sim", "Não"),
-            label = "Os ponderadores de equidade intraestadual alteram os valores recebidos pela rede estadual?"),
-          radioButtons(
-            inputId = "modelo",
-            choiceValues = c("fundeb", "vaat", "hibrido"),
-            selected = "fundeb",
-            choiceNames = c("Modelo FUNDEB atual (para fundos estaduais)", "Modelo VAAT", "Modelo Híbrido"),
-            label = "Qual modelo de complementação da União será simulado?"),
-          radioButtons(
-            inputId = "considerar",
-            choiceValues = c("social", "financas", "ambos"),
-            selected = "ambos",
-            choiceNames = c("Fator socioeconômico", "Fator de disponibilidade fiscal", "Ambos os critérios"),
-            label = "Que fatores de equidade serão considerados?")),
-        box(
-          textInput(
-            "complem_uniao",
-            "Complementação da União (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
-            "0.1, 0.12"
-            ),
-          textInput(
-            "complem_uniao_vaat",
-            "Complementação da União na segunda etapa do modelo híbrido (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
-            "0.05, 0.06"
-            ),
-          textInput(
-            "crescimento_economico",
-            "Valor do crescimento econômico esperado no modelo a cada ano (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
-            "0, 0.02"
-            ),
-          textInput(
-            "crescimento_demografico",
-            "Valor do crescimento demográfico da população de alunos esperado no modelo a cada ano  (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
-            "0, -0.02"
-            )
-          )
-        ),
+        box(select_options("dashboard")),
+        box(select_numeric_vector("dashboard"))),
       fluidRow(
-        box(
-          sliderInput(
-            "parametro_social",
-            "Define intervalo do fator socioeconômico:",
-            min = 1,
-            max = 2,
-            value = c(1, 1.3)
-            ),
-          sliderInput(
-            "parametro_financeiro",
-            "Define intervalo do fator fiscal:",
-            min = 1,
-            max = 2,
-            value = c(1, 1.3)
-            )
-          )
-        ),
+        box(select_slider("dashboard"))),
       fluidRow(column(width = 4),
         box(width = 4,
-        actionBttn("botao", "Simular", style = "jelly", size = "lg", 
-                   block = TRUE)
-         )
-      ),
+        botao_modulo("dashboard")
+      )),
       fluidRow(
         box(width = 12,
           rbokehOutput("vaa_total") %>%  withSpinner()
@@ -177,16 +100,15 @@ ui <- dashboardPage(
         infoBoxOutput("desvio_padrao"),
         infoBoxOutput("desvio_padrao_somatorio"),
         infoBoxOutput("gini")),
-      fluidRow(),
       fluidRow(
-        box(
-          DT::dataTableOutput("simulacao"), width = 12
+        box(width = 12,
+          DT::dataTableOutput("simulacao")
         )
       )
       )
     )
-    )
-  )
+    
+  ))
     
     
 
@@ -194,99 +116,13 @@ ui <- dashboardPage(
 server <- function(session, input, output) {
   
   # Carrega bases ====
-  alunos <- reactive({
-    inFile <- input$dados_alunos
-    if (is.null(inFile))
-      return(alunos_2015)
-    df <- read_csv2(inFile$datapath)
-    return(df)
-  })
-  ponderador_alunos <- reactive({
-    inFile <- input$ponderador_alunos
-    if (is.null(inFile))
-      return(ponderador_alunos)
-    df <- read_csv2(inFile$datapath)
-    return(df)
-  })
-  socioeco <- reactive({
-    inFile <- input$dados_social
-    if (is.null(inFile))
-      return(socioeco_2015)
-    df <- read_csv2(inFile$datapath)
-    return(df)
-  })
-  financeiro <- reactive({
-    inFile <- input$dados_financeiro
-    if (is.null(inFile))
-      return(financas_2015)
-    df <- read_csv2(inFile$datapath)
-    return(df)
-  })
+  alunos <- callModule(alunos_modulo, "dashboard")
+  ponderador_alunos <- callModule(ponderador_alunos_modulo, "dashboard")
+  socioeco <- callModule(socioeco_modulo, "dashboard")
+  financeiro <- callModule(financeiro_modulo, "dashboard")
   
   # Simula modelos ====
-  data <- eventReactive(input$botao, {
-    if (input$modelo == "fundeb") {
-      df <-
-        simular_modelo_fundeb_tempo(
-          alunos(),
-          ponderador_alunos(),
-          socioeco(),
-          financeiro(),
-          considerar = input$considerar,
-          fatores_intra_equidade = as.logical(input$distribuicao_social),
-          equalizacao_socio = input$equalizacao_socio,
-          condicao_rede = input$condicao_rede,
-          min_social = input$parametro_social[[1]],
-          max_social = input$parametro_social[[2]],
-          min_disp_fiscal = input$parametro_financeiro[[1]],
-          max_disp_fiscal = input$parametro_financeiro[[2]],
-          complem_uniao = simplifica_text_input(input$complem_uniao),
-          crescimento_economico = simplifica_text_input(input$crescimento_economico),
-          crescimento_demografico = simplifica_text_input(input$crescimento_demografico)
-          
-        )
-    } else if (input$modelo == "vaat") {
-      df <-
-        simular_modelo_vaat_tempo(
-          alunos(),
-          ponderador_alunos(),
-          socioeco(),
-          financeiro(),
-          considerar = input$considerar,
-          fatores_intra_equidade = as.logical(input$distribuicao_social),
-          equalizacao_socio = input$equalizacao_socio,
-          condicao_rede = input$condicao_rede,
-          min_social = input$parametro_social[[1]],
-          max_social = input$parametro_social[[2]],
-          min_disp_fiscal = input$parametro_financeiro[[1]],
-          max_disp_fiscal = input$parametro_financeiro[[2]],
-          complem_uniao = simplifica_text_input(input$complem_uniao),
-          crescimento_economico = simplifica_text_input(input$crescimento_economico),
-          crescimento_demografico = simplifica_text_input(input$crescimento_demografico)
-        )
-    }  else if (input$modelo == "hibrido") {
-      df <-
-        simular_modelo_hibrido_tempo(
-          alunos(),
-          ponderador_alunos(),
-          socioeco(),
-          financeiro(),
-          considerar = input$considerar,
-          condicao_rede = input$condicao_rede,
-          fatores_intra_equidade = as.logical(input$distribuicao_social),
-          equalizacao_socio = input$equalizacao_socio,
-          min_social = input$parametro_social[[1]],
-          max_social = input$parametro_social[[2]],
-          min_disp_fiscal = input$parametro_financeiro[[1]],
-          max_disp_fiscal = input$parametro_financeiro[[2]],
-          complem_uniao = simplifica_text_input(input$complem_uniao),
-          complem_uniao_vaat = simplifica_text_input(input$complem_uniao_vaat),
-          crescimento_economico = simplifica_text_input(input$crescimento_economico),
-          crescimento_demografico = simplifica_text_input(input$crescimento_demografico)
-        )
-    }
-    df
-  })
+  data <- callModule(simula, "dashboard", alunos = alunos(), ponderador_alunos = ponderador_alunos(), socioeco = socioeco(), financeiro = financeiro())
   
   output$vaa_total <- renderRbokeh({
     figure() %>%
