@@ -6,7 +6,8 @@ library(markdown)
 library(shinydashboard)
 library(shinycssloaders)
 library(simulador.fundeb)
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(knitr)
 library(plotly)
 library(ineq)
@@ -149,7 +150,7 @@ ui <- dashboardPage(
       ),
       fluidRow(
         box(width = 12,
-          plotlyOutput("vaa_total") %>%  withSpinner()
+          plotOutput("vaa_total") %>%  withSpinner()
           )),
       fluidRow(
         box(width = 12,
@@ -158,7 +159,8 @@ ui <- dashboardPage(
         ),
       fluidRow(
         column(width = 4),
-        selectInput(inputId = "filtro_ano", label = "Selecione ano pare medidas resumo", choices = NULL)),
+        box(width = 4,
+            selectInput(inputId = "filtro_ano", label = "Selecione ano pare medidas resumo", choices = NULL))),
       fluidRow(
         infoBoxOutput("vaa_medio_ente"),
         infoBoxOutput("vaa_mediano_ente"),
@@ -283,6 +285,11 @@ server <- function(session, input, output) {
     df
   })
   
+  output$vaa_total <- renderPlot({
+    data() %>% 
+      ggplot(aes(x = estado, fill = ano, y = vaa_final)) +
+               geom_col()
+  })
 
   anos_usados <- reactive({
     unique(data()$ano)
@@ -292,10 +299,10 @@ server <- function(session, input, output) {
     updateSelectInput(session, inputId = "filtro_ano", choices = anos_usados())
   })
   
-  data_resumo <- reactive(
+  data_resumo <- reactive({
     data() %>% 
       filter(ano == input$filtro_ano)
-  )
+  })
   
   output$simulacao <- DT::renderDataTable({
     data()
@@ -312,30 +319,7 @@ server <- function(session, input, output) {
     buttons = c('copy', 'csv', 'excel')
   )
   )
-  
-  
-  output$vaa_total <- renderPlotly(
-    ggplotly(data() %>%
-               ggplot(aes(x = ano, y = vaa_final, fill = ano)) +
-               scale_fill_viridis_d()+
-               theme_bw() +
-               guides(fill=FALSE) + 
-               labs(fill = "", x = "Ano", y = "Valor Aluno Ano") +
-               geom_boxplot()))
-  
-  output$ponto_vaa_estado <- renderPlotly({ggplotly(
-    data() %>%
-      ggplot(aes(
-        x = fct_reorder(estado, codigo_estado),
-        y = vaa_final,
-        fill = ano
-      )) +
-      geom_boxplot() + 
-      scale_fill_viridis_d() + 
-      theme_bw() + 
-      labs(fill = "Ano", x = "Estado", y = "Valor Aluno Ano")
-  ) })
-  
+
   # Rmarkdown usado ====
   
   output$markdown_tutorial <- renderUI({
@@ -414,6 +398,7 @@ server <- function(session, input, output) {
       HTML("Índice de Gini"), HTML(paste0(ineq::Gini(data_resumo()$vaa_final) %>% round(2))), icon = icon("list"),
       color = "purple"
     )})
+  
 }
 
 # APP ----
