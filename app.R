@@ -29,21 +29,25 @@ ui <- dashboardPage(
                tabName = "dashboard",
                icon = icon("dashboard")
                ),
+      menuItem("Comparação",
+               tabName = "comapracao",
+               icon = icon("dashboard")
+      ),
       menuItem("Todos", tabName = "todos", icon = icon("th")))),
   dashboardBody(tabItems(
-    # First tab content ====
+    # Tutorial tab content ====
     tabItem(tabName = "tutorial",
             fluidPage(
               box(width = 12,
                   uiOutput('markdown_tutorial')
                   ))),
-    # Second tab content ====
+    # Todos tab content ====
     tabItem(tabName = "todos",
             fluidPage(box(
             width = 12,
             uiOutput('markdown_todos')
             ))),
-    # Third tab content ====
+    # Dashboard tab content ====
     tabItem(
       tabName = "dashboard",
       fluidRow(
@@ -331,69 +335,69 @@ server <- function(session, input, output) {
   # Infoboxes ====
   output$vaa_medio_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA médio<br/>por ente"), paste0("R$", data_resumo()$vaa_final %>% mean() %>% round(digits = 2)), icon = icon("list"),
+      HTML("VAA médio<br/>por ente"), paste0("R$", data_resumo()$vaa_final %>% mean() %>% round(digits = 2)), icon = icon("chalkboard-teacher"),
       color = "purple"
     )})
   
   output$vaa_mediano_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA mediano<br/>por ente"), HTML(paste0("R$", data_resumo()$vaa_final %>% median() %>% round(digits = 2))), icon = icon("list"),
+      HTML("VAA mediano<br/>por ente"), HTML(paste0("R$", data_resumo()$vaa_final %>% median() %>% round(digits = 2))), icon = icon("chalkboard-teacher"),
       color = "purple"
     )})
   
   output$vaa_minimo_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA mínimo<br/>de um ente"), HTML(paste0("R$", data_resumo()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("list"),
-      color = "purple"
+      HTML("VAA mínimo<br/>de um ente"), HTML(paste0("R$", data_resumo()$vaa_final %>% min() %>% round(digits = 2))), icon = icon("chalkboard-teacher"),
+      color = "red"
     )})
   
   output$vaa_maximo_ente <- renderInfoBox({
     infoBox(
-      HTML("VAA máximo<br/>de um ente"), HTML(paste0("R$", data_resumo()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("list"),
-      color = "purple"
+      HTML("VAA máximo<br/>de um ente"), HTML(paste0("R$", data_resumo()$vaa_final %>% max() %>% round(digits = 2))), icon = icon("chalkboard-teacher"),
+      color = "green"
     )})
   
   output$ente_max_vaa <- renderInfoBox({
     infoBox(
-      HTML("Estado com<br/>maior VAA médio"), HTML(paste0(data_resumo() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = 1) %>% pull(estado))), icon = icon("list"),
-      color = "purple"
+      HTML("Estado com<br/>maior VAA médio"), HTML(paste0(data_resumo() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = 1) %>% pull(estado))), icon = icon("university"),
+      color = "green"
     )})
   
   output$ente_min_vaa <- renderInfoBox({
     infoBox(
-      HTML("Estado com<br/>menor VAA médio"), HTML(paste0(data_resumo() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("list"),
-      color = "purple"
+      HTML("Estado com<br/>menor VAA médio"), HTML(paste0(data_resumo() %>% group_by(estado) %>% summarise(media = mean(vaa_final)) %>% top_n(media, n = -1) %>% pull(estado))), icon = icon("university"),
+      color = "red"
     )})
   
   ## Medidas de desvio
   output$inter_quartil <- renderInfoBox({
     infoBox(
-      HTML("Razão interquantil"), HTML(paste0(data_resumo() %>% summarise(resumo = (quantile(vaa_final, 0.75)/quantile(vaa_final, 0.25)) %>% round(2)) %>% pull(resumo))), icon = icon("list"),
+      HTML("Razão interquantil"), HTML(paste0(data_resumo() %>% summarise(resumo = (quantile(vaa_final, 0.75)/quantile(vaa_final, 0.25)) %>% round(2)) %>% pull(resumo))), icon = icon("chart-line"),
       color = "purple"
     )})
   output$inter_decil <- renderInfoBox({
     infoBox(
-      HTML("Razão interdecil"), HTML(paste0(data_resumo() %>% summarise(resumo = (quantile(vaa_final, 0.9)/quantile(vaa_final, 0.1)) %>% round(2)) %>% pull(resumo))), icon = icon("list"),
+      HTML("Razão interdecil"), HTML(paste0(data_resumo() %>% summarise(resumo = (quantile(vaa_final, 0.9)/quantile(vaa_final, 0.1)) %>% round(2)) %>% pull(resumo))), icon = icon("chart-line"),
       color = "purple"
     )})
   output$max_min <- renderInfoBox({
     infoBox(
-      HTML("Razão Máximo<br/>Valor e Mínimo"), HTML(paste0(data_resumo() %>% summarise(resumo = (max(vaa_final)/min(vaa_final)) %>% round(2)) %>% pull(resumo))), icon = icon("list"),
+      HTML("Razão Máximo<br/>Valor e Mínimo"), HTML(paste0(data_resumo() %>% summarise(resumo = (max(vaa_final)/min(vaa_final)) %>% round(2)) %>% pull(resumo))), icon = icon("chart-line"),
       color = "purple"
     )})
   output$desvio_padrao <- renderInfoBox({
     infoBox(
-      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>% summarise(resumo = sd(vaa_final) %>% round(2)) %>% pull(resumo))), icon = icon("list"),
+      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>% summarise(resumo = sd(vaa_final) %>% round(2)) %>% pull(resumo))), icon = icon("chart-line"),
       color = "purple"
     )})
   output$desvio_padrao_somatorio <- renderInfoBox({
     infoBox(
-      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>%filter(estado != "DF") %>%  group_by(estado) %>%  summarise(resumo = sd(vaa_final) %>% round(2)) %>% pull(resumo) %>% sum())), icon = icon("list"),
+      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>%filter(estado != "DF") %>%  group_by(estado) %>%  summarise(resumo = sd(vaa_final) %>% round(2)) %>% pull(resumo) %>% sum())), icon = icon("chart-line"),
       color = "purple"
     )})
   output$gini <- renderInfoBox({
     infoBox(
-      HTML("Índice de Gini"), HTML(paste0(ineq::Gini(data_resumo()$vaa_final) %>% round(2))), icon = icon("list"),
+      HTML("Índice de Gini"), HTML(paste0(ineq::Gini(data_resumo()$vaa_final) %>% round(2))), icon = icon("chart-line"),
       color = "purple"
     )})
   
