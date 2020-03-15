@@ -73,7 +73,7 @@ Todos os modelos apresentam opções parâmetros customizáveis que permitem ao 
 ,* **complem_uniao_vat**: percentual do fundo (somatório dos fundos estaduais) que a União complementará na segunda etapa de complementação do modelo VAT;
 * **crescimento_economico**: vetor númerico de crescimento econômico, especificamente do FUNDEB e das demais receitas. O primeiro valor representa a taxa de crescimento do primeiro ano em relação aos dados de finanças colocados como _input_, o segundo valor representa a taxa de crescimento em relação aos valores de finanças do primeiro ano, e assim sucessivamente;
 * **crescimento_demografico**: vetor numérico de crescimento demográfico para alunos.
-* **equalizacao_socio**: parâmetro lógico que controla se a equalização do fundo considerara o vetor de alunos ponderados por etapa ou de alunos ponderados por etapa e informações socioeconomicas;
+* **fatores_equidade**: parâmetro lógico que controla se a equalização do fundo considerara o vetor de alunos ponderados por etapa ou de alunos ponderados por etapa e informações socioeconomicas;
 * **fatores_intra_equidade**: parâmetro logico que controla se a distribuicao do fundo estadual considerara o vetor de alunos ponderados por etapa ou de alunos ponderados por etapa e informações socioeconomicas;
 * **min_social**: peso mínimo dado a informação socioeconômica;
 * **max_social**: peso máximo dado a informação socioeconômica;
