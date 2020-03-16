@@ -11,7 +11,7 @@ library(knitr)
 library(rbokeh)
 library(ineq)
 
-
+# Funções ----
 
 for(i in seq_along(dir("modules"))){
   source(paste0("modules/", dir("modules")[i]), encoding = "UTF-8")
@@ -37,7 +37,7 @@ ui <- dashboardPage(
                icon = icon("dashboard")
                ),
       menuItem("Comparação",
-               tabName = "comapracao",
+               tabName = "comparacao",
                icon = icon("dashboard")
       ),
       menuItem("Todos", tabName = "todos", icon = icon("th")))),
@@ -79,9 +79,7 @@ ui <- dashboardPage(
           rbokehOutput("vaa_total") %>%  withSpinner()
           )),
       fluidRow(
-        box(width = 12,
-          plotlyOutput("ponto_vaa_estado") %>%  withSpinner()
-          )
+        box(width = 12)
         ),
       fluidRow(
         column(width = 4),
@@ -105,10 +103,28 @@ ui <- dashboardPage(
           DT::dataTableOutput("simulacao")
         )
       )
-      )
-    )
+      ),
+    tabItem(tabName = "comparacao",
+            fluidRow(
+              box(select_files_alunos("comparacao")),
+              box(select_files("comparacao"))
+            ),
+            fluidRow(
+              box(
+                select_options("comparacao_mod_1"),
+                select_numeric_vector("comparacao_mod_1"),
+                select_slider("comparacao_mod_1")),
+              box(
+                select_options("comparacao_mod_2"),
+                select_numeric_vector("comparacao_mod_2"),
+                select_slider("comparacao_mod_2")
+              ),
+              fluidRow(column(width = 4),
+                       box(width = 4,
+                           botao_modulo("comparacao_botao")
+                       ))))
     
-  ))
+  )))
     
     
 
