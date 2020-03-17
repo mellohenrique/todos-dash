@@ -111,18 +111,16 @@ ui <- dashboardPage(
             ),
             fluidRow(
               box(
-                select_options("comparacao_mod_1"),
-                select_numeric_vector("comparacao_mod_1"),
-                select_slider("comparacao_mod_1")),
+                select_comparacao_input_1("comparacao")),
               box(
-                select_options("comparacao_mod_2"),
-                select_numeric_vector("comparacao_mod_2"),
-                select_slider("comparacao_mod_2")
+                select_comparacao_input_2("comparacao")
               ),
               fluidRow(column(width = 4),
                        box(width = 4,
-                           botao_modulo("comparacao_botao")
-                       ))))
+                           botao_modulo("comparacao")
+                       )),
+              fluidRow(box(width = 12,
+                           DT::dataTableOutput("dt_comparacao")))))
     
   )))
     
@@ -174,16 +172,6 @@ server <- function(session, input, output) {
   )
   )
 
-  # Rmarkdown usado ====
-  
-  output$markdown_tutorial <- renderUI({
-    HTML(markdown::markdownToHTML(knit('rmd/tutorial.rmd', quiet = TRUE)))
-  })
-  
-  output$markdown_todos <- renderUI({
-    HTML(markdown::markdownToHTML(knit('rmd/todos.rmd', quiet = TRUE)))
-  })
-  
   # Infoboxes ====
   output$vaa_medio_ente <- renderInfoBox({
     infoBox(
@@ -252,6 +240,41 @@ server <- function(session, input, output) {
       HTML("Índice de Gini"), HTML(paste0(ineq::Gini(data_resumo()$vaa_final) %>% round(2))), icon = icon("chart-line"),
       color = "purple"
     )})
+  
+  # Carrega bases ====
+  alunos <- callModule(alunos_modulo, "comparacao")
+  ponderador_alunos <- callModule(ponderador_alunos_modulo, "comparacao")
+  socioeco <- callModule(socioeco_modulo, "comparacao")
+  financeiro <- callModule(financeiro_modulo, "comparacao")
+  
+  # Simula modelos ====
+  data_comparacao <- callModule(compara, "comparacao", alunos = alunos(), ponderador_alunos = ponderador_alunos(), socioeco = socioeco(), financeiro = financeiro())
+  
+  output$dt_comparacao <- DT::renderDataTable({
+    data_comparacao()
+  },
+  server = FALSE,
+  extensions = 'Buttons',
+  options = list(
+    scrollX = TRUE,
+    scrollY = TRUE,
+    fixedColumns = TRUE,
+    autoWidth = TRUE,
+    ordering = TRUE,
+    dom = 'Bftsp',
+    buttons = c('copy', 'csv', 'excel')
+  )
+  )
+  # Rmarkdown usado ====
+  
+  output$markdown_tutorial <- renderUI({
+    HTML(markdown::markdownToHTML(knit('rmd/tutorial.rmd', quiet = TRUE)))
+  })
+  
+  output$markdown_todos <- renderUI({
+    HTML(markdown::markdownToHTML(knit('rmd/todos.rmd', quiet = TRUE)))
+  })
+  
   
 }
 
