@@ -84,7 +84,7 @@ ui <- dashboardPage(
       fluidRow(
         column(width = 4),
         box(width = 4,
-            selectInput(inputId = "filtro_ano", label = "Selecione ano pare medidas resumo", choices = NULL))),
+            selectInput(inputId = "filtro_ano", label = "Selecione ano para medidas resumo", choices = NULL))),
       fluidRow(
         infoBoxOutput("vaa_medio_ente"),
         infoBoxOutput("vaa_mediano_ente"),
@@ -119,6 +119,11 @@ ui <- dashboardPage(
                        box(width = 4,
                            botao_modulo("comparacao")
                        )),
+              fluidRow(
+                column(width = 4),
+                box(width = 4,
+                    selectInput(inputId = "filtro_ano", label = "Selecione ano para medidas resumo", choices = NULL))),
+              fluidRow(),
               fluidRow(box(width = 12,
                            DT::dataTableOutput("dt_comparacao")))))
     
@@ -265,6 +270,20 @@ server <- function(session, input, output) {
     buttons = c('copy', 'csv', 'excel')
   )
   )
+  
+  anos_usados_comparacao <- reactive({
+    unique(data_comparacao()$ano)
+  })
+  
+  observeEvent(anos_usados_comparacao(), {
+    updateSelectInput(session, inputId = "filtro_ano_comparacao", choices = anos_usados_comparacao())
+  })
+  
+  data_resumo <- reactive({
+    data_comparacao() %>% 
+      filter(ano == input$filtro_ano_comparacao)
+  })
+  
   # Rmarkdown usado ====
   
   output$markdown_tutorial <- renderUI({
