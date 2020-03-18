@@ -122,8 +122,8 @@ ui <- dashboardPage(
               fluidRow(
                 column(width = 4),
                 box(width = 4,
-                    selectInput(inputId = "filtro_ano", label = "Selecione ano para medidas resumo", choices = NULL))),
-              fluidRow(),
+                    selectInput(inputId = "filtro_ano_comparacao", label = "Selecione ano para medidas resumo", choices = NULL))),
+              fluidRow(plotOutput("grafico_resumo_comparacao")),
               fluidRow(box(width = 12,
                            DT::dataTableOutput("dt_comparacao")))))
     
@@ -237,7 +237,7 @@ server <- function(session, input, output) {
     )})
   output$desvio_padrao_somatorio <- renderInfoBox({
     infoBox(
-      HTML("Desvio Padrão<br/>do VAA"), HTML(paste0(data_resumo() %>%filter(estado != "DF") %>%  group_by(estado) %>%  summarise(resumo = sd(vaa_final) %>% round(2)) %>% pull(resumo) %>% sum())), icon = icon("chart-line"),
+      HTML("Somatório do Desvio<br/>Padrão do VAA<br/> dos estados"), HTML(paste0(data_resumo() %>% filter(estado != "DF") %>%  group_by(estado) %>%  summarise(resumo = sd(vaa_final) %>% round(2)) %>% pull(resumo) %>% sum())), icon = icon("chart-line"),
       color = "purple"
     )})
   output$gini <- renderInfoBox({
@@ -279,10 +279,37 @@ server <- function(session, input, output) {
     updateSelectInput(session, inputId = "filtro_ano_comparacao", choices = anos_usados_comparacao())
   })
   
-  data_resumo <- reactive({
-    data_comparacao() %>% 
-      filter(ano == input$filtro_ano_comparacao)
+  tabela_resumo <- reactive({
+    mapa <- expand.grid(anos = anos_usados_comparacao(), modelo =  1:2)
+    map2_dfr(mapa$anos, mapa$modelo, ~comparacao_resumo(data_comparacao) %>% 
+               mutate(ano = .x, modelo = .y))
   })
+  
+  tabela_resumo_DT <- DT::renderDataTable({
+    tabela_resumo()
+  },
+  server = FALSE,
+  extensions = 'Buttons',
+  options = list(
+    scrollX = TRUE,
+    scrollY = TRUE,
+    fixedColumns = TRUE,
+    autoWidth = TRUE,
+    ordering = TRUE,
+    dom = 'Bftsp',
+    buttons = c('copy', 'csv', 'excel')
+  )
+  )
+  
+  grafico_resumo_comparacao <- renderPlot({
+    tabela_resumo() %>% 
+      filter(ano == input$filtro_ano_comparacao) %>% 
+      ggplot(aes(x = modelo, fill = modelo, y = Valores) +
+               geom_col()+
+               facet_wrap(~Medidas, scales = "free"))
+  })
+  
+  
   
   # Rmarkdown usado ====
   
