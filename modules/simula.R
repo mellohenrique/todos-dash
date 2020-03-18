@@ -28,10 +28,10 @@ simula <- function(input, output, session, alunos, ponderador_alunos, socioeco, 
     } else if (input$modelo == "vaat") {
       df <-
         simular_modelo_vaat_tempo(
-          alunos(),
-          ponderador_alunos(),
-          socioeco(),
-          financeiro(),
+          alunos,
+          ponderador_alunos,
+          socioeco,
+          financeiro,
           considerar = input$considerar,
           fatores_intra_equidade = as.logical(input$distribuicao_social),
           equalizacao_socio = input$equalizacao_socio,
@@ -47,10 +47,10 @@ simula <- function(input, output, session, alunos, ponderador_alunos, socioeco, 
     }  else if (input$modelo == "hibrido") {
       df <-
         simular_modelo_hibrido_tempo(
-          alunos(),
-          ponderador_alunos(),
-          socioeco(),
-          financeiro(),
+          alunos,
+          ponderador_alunos,
+          socioeco,
+          financeiro,
           considerar = input$considerar,
           condicao_rede = input$condicao_rede,
           fatores_intra_equidade = as.logical(input$distribuicao_social),

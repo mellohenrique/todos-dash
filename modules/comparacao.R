@@ -28,10 +28,10 @@ compara <- function(input, output, session, alunos, ponderador_alunos, socioeco,
   } else if (input$modelo_1 == "vaat") {
     df_1 <-
       simular_modelo_vaat_tempo(
-        alunos(),
-        ponderador_alunos(),
-        socioeco(),
-        financeiro(),
+        alunos,
+        ponderador_alunos,
+        socioeco,
+        financeiro,
         considerar = input$considerar_1,
         fatores_intra_equidade = as.logical(input$distribuicao_social_1),
         equalizacao_socio = input$equalizacao_socio_1,
@@ -47,10 +47,10 @@ compara <- function(input, output, session, alunos, ponderador_alunos, socioeco,
   }  else if (input$modelo_1 == "hibrido") {
     df_1 <-
       simular_modelo_hibrido_tempo(
-        alunos(),
-        ponderador_alunos(),
-        socioeco(),
-        financeiro(),
+        alunos,
+        ponderador_alunos,
+        socioeco,
+        financeiro,
         considerar = input$considerar_1,
         condicao_rede = input$condicao_rede_1,
         fatores_intra_equidade = as.logical(input$distribuicao_social_1),
@@ -88,10 +88,10 @@ compara <- function(input, output, session, alunos, ponderador_alunos, socioeco,
     } else if (input$modelo_2 == "vaat") {
       df_2 <-
         simular_modelo_vaat_tempo(
-          alunos(),
-          ponderador_alunos(),
-          socioeco(),
-          financeiro(),
+          alunos,
+          ponderador_alunos,
+          socioeco,
+          financeiro,
           considerar = input$considerar_2,
           fatores_intra_equidade = as.logical(input$distribuicao_social_2),
           equalizacao_socio = input$equalizacao_socio_2,
@@ -107,10 +107,10 @@ compara <- function(input, output, session, alunos, ponderador_alunos, socioeco,
     }  else if (input$modelo_2 == "hibrido") {
       df_2 <-
         simular_modelo_hibrido_tempo(
-          alunos(),
-          ponderador_alunos(),
-          socioeco(),
-          financeiro(),
+          alunos,
+          ponderador_alunos,
+          socioeco,
+          financeiro,
           considerar = input$considerar_2,
           condicao_rede = input$condicao_rede_2,
           fatores_intra_equidade = as.logical(input$distribuicao_social_2),

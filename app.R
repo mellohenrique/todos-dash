@@ -11,7 +11,7 @@ library(knitr)
 library(rbokeh)
 library(ineq)
 
-# Funções ----
+# Carrega funções e modulos ----
 
 for(i in seq_along(dir("modules"))){
   source(paste0("modules/", dir("modules")[i]), encoding = "UTF-8")
@@ -28,6 +28,7 @@ simplifica_text_input <-
 
 # Ui ----
 ui <- dashboardPage(
+  # Estrutura da interface de Usuário ====
   dashboardHeader(title = "Simulador FUNDEB"),
   dashboardSidebar(
     sidebarMenu(
@@ -104,6 +105,7 @@ ui <- dashboardPage(
         )
       )
       ),
+    # Aba da comparacao entre modelos ====
     tabItem(tabName = "comparacao",
             fluidRow(
               box(select_files_alunos("comparacao")),
@@ -281,7 +283,7 @@ server <- function(session, input, output) {
   
   tabela_resumo <- reactive({
     mapa <- expand.grid(anos = anos_usados_comparacao(), modelo =  1:2)
-    map2_dfr(mapa$anos, mapa$modelo, ~comparacao_resumo(data_comparacao) %>% 
+    map2_dfr(mapa$anos, mapa$modelo, ~comparacao_resumo(data_comparacao()) %>% 
                mutate(ano = .x, modelo = .y))
   })
   
