@@ -76,16 +76,13 @@ ui <- dashboardPage(
         botao_modulo("dashboard")
       )),
       fluidRow(
-        box(width = 12,
-          rbokehOutput("vaa_total") %>%  withSpinner()
-          )),
-      fluidRow(
-        box(width = 12)
-        ),
-      fluidRow(
         column(width = 4),
         box(width = 4,
             selectInput(inputId = "filtro_ano", label = "Selecione ano para medidas resumo", choices = NULL))),
+      fluidRow(
+        box(width = 12,
+          plotOutput("vaa_total") %>%  withSpinner()
+          )),
       fluidRow(
         infoBoxOutput("vaa_medio_ente"),
         infoBoxOutput("vaa_mediano_ente"),
@@ -103,6 +100,10 @@ ui <- dashboardPage(
         box(width = 12,
           DT::dataTableOutput("simulacao")
         )
+      ),
+      fluidRow(
+        box(width = 12, 
+            DT::dataTableOutput("simulacao_resumo"))
       )
       ),
     # Aba da comparacao entre modelos ====
@@ -127,9 +128,11 @@ ui <- dashboardPage(
                     selectInput(inputId = "filtro_ano_comparacao", label = "Selecione ano para medidas resumo", choices = NULL))),
               fluidRow(plotOutput("grafico_resumo_comparacao")),
               fluidRow(box(width = 12,
-                           DT::dataTableOutput("dt_comparacao")))))
+                           DT::dataTableOutput("dt_comparacao"))),
+              fluidRow(boxwidth =  12,
+                       DT::dataTableOutput("comparacao_resumo")))))
     
-  )))
+  ))
     
     
 
@@ -145,9 +148,13 @@ server <- function(session, input, output) {
   # Simula modelos ====
   data <- callModule(simula, "dashboard", alunos = alunos(), ponderador_alunos = ponderador_alunos(), socioeco = socioeco(), financeiro = financeiro())
   
-  output$vaa_total <- renderRbokeh({
-    figure() %>%
-      ly_points(ibge, vaa_final, data = data())
+  output$vaa_total <- renderPlot({
+    data_resumo() %>% 
+      group_by(estado) %>% 
+      summarise(vaa_final = mean(vaa_final)) %>% 
+      ggplot(aes(x = estado, y = vaa_final)) +
+      geom_col() +
+      labs(x = "Estado", y = "VAAT médio")
   })
 
   anos_usados <- reactive({
@@ -165,6 +172,22 @@ server <- function(session, input, output) {
   
   output$simulacao <- DT::renderDataTable({
     data()
+  },
+  server = FALSE,
+  extensions = 'Buttons',
+  options = list(
+    scrollX = TRUE,
+    scrollY = TRUE,
+    fixedColumns = TRUE,
+    autoWidth = TRUE,
+    ordering = TRUE,
+    dom = 'Bftsp',
+    buttons = c('copy', 'csv', 'excel')
+  )
+  )
+  
+  output$simulacao_resumo <- DT::renderDataTable({
+    map_dfr(anos_usados(), ~(data() %>% filter(ano == .x) %>% comparacao_resumo() %>% mutate(ano = .x)))
   },
   server = FALSE,
   extensions = 'Buttons',
@@ -254,7 +277,7 @@ server <- function(session, input, output) {
   socioeco <- callModule(socioeco_modulo, "comparacao")
   financeiro <- callModule(financeiro_modulo, "comparacao")
   
-  # Simula modelos ====
+  # Comparação de modelos ====
   data_comparacao <- callModule(compara, "comparacao", alunos = alunos(), ponderador_alunos = ponderador_alunos(), socioeco = socioeco(), financeiro = financeiro())
   
   output$dt_comparacao <- DT::renderDataTable({
@@ -290,7 +313,7 @@ server <- function(session, input, output) {
                mutate(ano = .x, modelo = .y))
   })
   
-  tabela_resumo_DT <- DT::renderDataTable({
+  output$comparacao_resumo <- DT::renderDataTable({
     tabela_resumo()
   },
   server = FALSE,
@@ -309,11 +332,11 @@ server <- function(session, input, output) {
   output$grafico_resumo_comparacao <- renderPlot({
     tabela_resumo() %>% 
       filter(ano == input$filtro_ano_comparacao) %>% 
-      ggplot(aes(x = modelo, fill = modelo, y = Valores)) +
+      ggplot(aes(x = modelo, fill = as.factor(modelo), y = Valores)) +
                geom_col()+
-               facet_wrap(~Medidas, scales = "free")
+               facet_wrap(~Medidas, scales = "free") +
+      labs(fill = "Modelo", x = "Modelo")
   })
-  
   
   
   # Rmarkdown usado ====
