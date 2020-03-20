@@ -281,9 +281,12 @@ server <- function(session, input, output) {
     updateSelectInput(session, inputId = "filtro_ano_comparacao", choices = anos_usados_comparacao())
   })
   
+  mapeamento_ano_modelo <- reactive({
+    expand.grid(anos = anos_usados_comparacao(), modelo =  1:2)
+  })
+  
   tabela_resumo <- reactive({
-    mapa <- expand.grid(anos = anos_usados_comparacao(), modelo =  1:2)
-    map2_dfr(mapa$anos, mapa$modelo, ~comparacao_resumo(data_comparacao()) %>% 
+    map2_dfr(mapeamento_ano_modelo()$anos, mapeamento_ano_modelo()$modelo, ~comparacao_resumo(data_comparacao() %>% filter(ano == .x, modelo == .y)) %>% 
                mutate(ano = .x, modelo = .y))
   })
   
@@ -303,12 +306,12 @@ server <- function(session, input, output) {
   )
   )
   
-  grafico_resumo_comparacao <- renderPlot({
+  output$grafico_resumo_comparacao <- renderPlot({
     tabela_resumo() %>% 
       filter(ano == input$filtro_ano_comparacao) %>% 
-      ggplot(aes(x = modelo, fill = modelo, y = Valores) +
+      ggplot(aes(x = modelo, fill = modelo, y = Valores)) +
                geom_col()+
-               facet_wrap(~Medidas, scales = "free"))
+               facet_wrap(~Medidas, scales = "free")
   })
   
   

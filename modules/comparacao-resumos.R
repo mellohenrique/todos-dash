@@ -7,7 +7,7 @@ comparacao_resumo <- function(dados){
            min(dados$vaa_final),
            dados %>% summarise(resumo = (quantile(vaa_final, 0.75)/quantile(vaa_final, 0.25)) %>% round(2)) %>% pull(resumo),
            dados %>% summarise(resumo = (quantile(vaa_final, 0.9)/quantile(vaa_final, 0.1)) %>% round(2)) %>% pull(resumo),
-           data %>% summarise(resumo = (max(vaa_final)/min(vaa_final)) %>% round(2)) %>% pull(resumo),
+           dados %>% summarise(resumo = (max(vaa_final)/min(vaa_final)) %>% round(2)) %>% pull(resumo),
            dados %>% summarise(resumo = sd(vaa_final)) %>% pull(resumo),
            dados %>% filter(estado != "DF") %>%  group_by(estado) %>%  summarise(resumo = sd(vaa_final)) %>%  pull(resumo) %>% sum(),
            ineq::Gini(dados$vaa_final)
