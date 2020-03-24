@@ -242,7 +242,7 @@ server <- function(session, input, output) {
   ## Medidas de desvio
   output$inter_quartil <- renderInfoBox({
     infoBox(
-      HTML("Razão interquantil"), HTML(paste0(data_resumo() %>% summarise(resumo = (quantile(vaa_final, 0.75)/quantile(vaa_final, 0.25)) %>% round(2)) %>% pull(resumo))), icon = icon("chart-line"),
+      HTML("Razão interquartil"), HTML(paste0(data_resumo() %>% summarise(resumo = (quantile(vaa_final, 0.75)/quantile(vaa_final, 0.25)) %>% round(2)) %>% pull(resumo))), icon = icon("chart-line"),
       color = "purple"
     )})
   output$inter_decil <- renderInfoBox({
