@@ -5,6 +5,6 @@ account: henrique-assuncao
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1892161
-bundleId: 2845625
+bundleId: 2902194
 url: https://henrique-assuncao.shinyapps.io/todos-dash/
-when: 1583198220.3422
+when: 1584716547.92408
