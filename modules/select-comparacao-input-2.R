@@ -47,22 +47,22 @@ select_comparacao_input_2 <- function(id) {
     ),
     textInput(
       ns("complem_uniao_2"),
-      "Complementação da União (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
+      "Complementação da União\n(valores anuais separados por vírgula, ponto sendo símbolo de decimal)",
       "0.1, 0.12"
     ),
     textInput(
       ns("complem_uniao_vaat_2"),
-      "Complementação da União na segunda etapa do modelo híbrido (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
+      "Complementação da União na segunda etapa do modelo híbrido\n(valores anuais separados por vírgula, ponto sendo símbolo de decimal)",
       "0.05, 0.06"
     ),
     textInput(
       ns("crescimento_economico_2"),
-      "Valor do crescimento econômico esperado no modelo a cada ano (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
+      "Valor do crescimento econômico esperado no modelo a cada ano\n(valores anuais separados por vírgula, ponto sendo símbolo de decimal)",
       "0, 0.02"
     ),
     textInput(
       ns("crescimento_demografico_2"),
-      "Valor do crescimento demográfico da população de alunos esperado no modelo a cada ano  (valores anuais separados por vírgula, ponto sendo símbolo de decimal",
+      "Valor do crescimento demográfico da população de alunos esperado no modelo a cada ano\n(valores anuais separados por vírgula, ponto sendo símbolo de decimal)",
       "0, -0.02"
     ),
     sliderInput(
@@ -70,7 +70,7 @@ select_comparacao_input_2 <- function(id) {
       "Define intervalo do fator socioeconômico:",
       min = 1,
       max = 2,
-      value = c(1, 1.3)
+      value = c(1, 1.2)
     ),
     
     sliderInput(
@@ -78,7 +78,7 @@ select_comparacao_input_2 <- function(id) {
       "Define intervalo do fator fiscal:",
       min = 1,
       max = 2,
-      value = c(1, 1.3)
+      value = c(1, 1.2)
     )
   )
 }

@@ -70,7 +70,7 @@ select_comparacao_input_1 <- function(id) {
       "Define intervalo do fator socioeconômico:",
       min = 1,
       max = 2,
-      value = c(1, 1.3)
+      value = c(1, 1.2)
     ),
     
     sliderInput(
@@ -78,7 +78,7 @@ select_comparacao_input_1 <- function(id) {
       "Define intervalo do fator fiscal:",
       min = 1,
       max = 2,
-      value = c(1, 1.3)
+      value = c(1, 1.2)
     )
   )
 }
