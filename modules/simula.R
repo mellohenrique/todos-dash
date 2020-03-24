@@ -40,7 +40,7 @@ simula <- function(input, output, session, alunos, ponderador_alunos, socioeco, 
           max_social = input$parametro_social[[2]],
           min_disp_fiscal = input$parametro_financeiro[[1]],
           max_disp_fiscal = input$parametro_financeiro[[2]],
-          complem_uniao = simplifica_text_input(input$complem_uniao),
+          complem_uniao = simplifica_text_input(input$complem_uniao_vaat),
           crescimento_economico = simplifica_text_input(input$crescimento_economico),
           crescimento_demografico = simplifica_text_input(input$crescimento_demografico)
         )
