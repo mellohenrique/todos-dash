@@ -23,11 +23,18 @@ tagList(
     label = "Utiliza ponderadores de equidade na equalização intraestadual do FUNDEB?"
   ),
   radioButtons(
-    inputId = ns("condicao_rede"),
+    inputId = ns("gov_estado_intraestadual"),
     choiceValues = c(TRUE, FALSE),
     selected = TRUE,
     choiceNames = c("Sim", "Não"),
     label = "Os ponderadores de equidade intraestadual alteram os valores recebidos pela rede estadual?"
+  ),
+  radioButtons(
+    inputId = ns("condicao_rede"),
+    choiceValues = c(TRUE, FALSE),
+    selected = TRUE,
+    choiceNames = c("Sim", "Não"),
+    label = "Matrículas estaduais de Educação Infantil e matrículas municipais de Ensino Médio são contabilizadas na distribuição?"
   ),
   radioButtons(
     inputId = ns("modelo"),
