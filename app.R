@@ -117,7 +117,7 @@ ui <- dashboardPage(
                 select_comparacao_input_1("comparacao")),
               box(
                 select_comparacao_input_2("comparacao")
-              ),
+              )),
               fluidRow(column(width = 4),
                        box(width = 4,
                            botao_modulo("comparacao")
@@ -129,10 +129,12 @@ ui <- dashboardPage(
               fluidRow(plotOutput("grafico_resumo_comparacao")),
               fluidRow(box(width = 12,
                            DT::dataTableOutput("dt_comparacao"))),
-              fluidRow(boxwidth =  12,
-                       DT::dataTableOutput("comparacao_resumo")))))
+              fluidRow(
+                column(width = 4),
+                box(boxwidth =  12,
+                       DT::dataTableOutput("comparacao_resumo"))))))
     
-  ))
+  )
     
     
 
