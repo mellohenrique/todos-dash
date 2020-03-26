@@ -19,10 +19,10 @@ output: html_document
 
 ## Modelos
 
-O _dashboard_ disponibiliza 3 modelos para realizar simulações, tanto em um único período como em vários períodos. 
+O _dashboard_ disponibiliza 3 modelos para realizar simulações, tanto em um único período como em vários períodos. A _comparação_ permite comparar dois modelos no tempo. Os modelos disponíveis são:
 
 1. Modelo FUNDEB, modelo atualmente utilizado no financiamento da educação pelo FUNDEB em que os fundos estaduais são complementados pela União de modo a diminuir as desigualdades de valor aluno ano;
-2. Modelo VAT, modelo alternativo que complementa os recursos totais da educação em estados e municípios, individualmente, de modo a reduzir a desigualdade do valor aluno ano entre os entes;
+2. Modelo VAAT, modelo alternativo que complementa os recursos totais da educação em estados e municípios, individualmente, de modo a reduzir a desigualdade do valor aluno ano entre os entes;
 3. Modelo Híbrido, modelo que combina os modelo VAT e FUNDEB.
 
 ## Tabelas de _Inputs_
