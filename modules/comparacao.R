@@ -40,7 +40,7 @@ compara <- function(input, output, session, alunos, ponderador_alunos, socioeco,
         max_social = input$parametro_social_1[[2]],
         min_disp_fiscal = input$parametro_financeiro_1[[1]],
         max_disp_fiscal = input$parametro_financeiro_1[[2]],
-        complem_uniao = simplifica_text_input(input$complem_uniao_1),
+        complem_uniao = simplifica_text_input(input$complem_uniao_vaat_1),
         crescimento_economico = simplifica_text_input(input$crescimento_economico_1),
         crescimento_demografico = simplifica_text_input(input$crescimento_demografico_1)
       )
@@ -100,7 +100,7 @@ compara <- function(input, output, session, alunos, ponderador_alunos, socioeco,
           max_social = input$parametro_social_2[[2]],
           min_disp_fiscal = input$parametro_financeiro_2[[1]],
           max_disp_fiscal = input$parametro_financeiro_2[[2]],
-          complem_uniao = simplifica_text_input(input$complem_uniao_2),
+          complem_uniao = simplifica_text_input(input$complem_uniao_vaat_2),
           crescimento_economico = simplifica_text_input(input$crescimento_economico_2),
           crescimento_demografico = simplifica_text_input(input$crescimento_demografico_2)
         )

@@ -17,6 +17,13 @@ select_comparacao_input_2 <- function(id) {
       label = "Utiliza ponderadores de equidade na equalização intraestadual do FUNDEB?"
     ),
     radioButtons(
+      inputId = ns("gov_estado_intraestadual_2"),
+      choiceValues = c(TRUE, FALSE),
+      selected = TRUE,
+      choiceNames = c("Sim", "Não"),
+      label = "Os ponderadores de equidade intraestadual alteram os valores recebidos pela rede estadual?"
+    ),
+    radioButtons(
       inputId = ns("condicao_rede_2"),
       choiceValues = c(TRUE, FALSE),
       selected = TRUE,
@@ -47,22 +54,22 @@ select_comparacao_input_2 <- function(id) {
     ),
     textInput(
       ns("complem_uniao_2"),
-      "Complementação da União\n(valores anuais separados por vírgula, ponto sendo símbolo de decimal)",
+      HTML("Complementação da União para fundos estaduais, modelo atual<br/>(Valores anuais separados por vírgula, ponto sendo símbolo de decimal)"),
       "0.1, 0.12"
     ),
     textInput(
       ns("complem_uniao_vaat_2"),
-      "Complementação da União na segunda etapa do modelo híbrido\n(valores anuais separados por vírgula, ponto sendo símbolo de decimal)",
+      HTML("Complementação da União no modelo VAAT<br/>(Valores anuais separados por vírgula, ponto sendo símbolo de decimal)"),
       "0.05, 0.06"
     ),
     textInput(
       ns("crescimento_economico_2"),
-      "Valor do crescimento econômico esperado no modelo a cada ano\n(valores anuais separados por vírgula, ponto sendo símbolo de decimal)",
+      HTML("Valor do crescimento econômico esperado no modelo a cada ano<br/>(Valores anuais separados por vírgula, ponto sendo símbolo de decimal)"),
       "0, 0.02"
     ),
     textInput(
       ns("crescimento_demografico_2"),
-      "Valor do crescimento demográfico da população de alunos esperado no modelo a cada ano\n(valores anuais separados por vírgula, ponto sendo símbolo de decimal)",
+      HTML("Valor do crescimento demográfico da população de alunos esperado no modelo a cada ano<br/>(Valores anuais separados por vírgula, ponto sendo símbolo de decimal)"),
       "0, -0.02"
     ),
     sliderInput(
