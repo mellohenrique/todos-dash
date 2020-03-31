@@ -113,9 +113,9 @@ ui <- dashboardPage(
               box(select_files("comparacao"))
             ),
             fluidRow(
-              box(
+              box(title = "Parâmetros do modelo 1",
                 select_comparacao_input_1("comparacao")),
-              box(
+              box(title = "Parâmetros do modelo 2",
                 select_comparacao_input_2("comparacao")
               )),
               fluidRow(column(width = 4),

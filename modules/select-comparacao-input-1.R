@@ -59,7 +59,7 @@ select_comparacao_input_1 <- function(id) {
     ),
     textInput(
       ns("complem_uniao_vaat_1"),
-      HTML("Complementação da União na segunda etapa do modelo híbrido<br/>(Valores anuais separados por vírgula, ponto sendo símbolo de decimal)"),
+      HTML("Complementação da União no modelo VAAT<br/>(Valores anuais separados por vírgula, ponto sendo símbolo de decimal)"),
       "0.05, 0.06"
     ),
     textInput(
