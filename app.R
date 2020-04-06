@@ -184,7 +184,9 @@ server <- function(session, input, output) {
     autoWidth = TRUE,
     ordering = TRUE,
     dom = 'Bftsp',
-    buttons = c('copy', 'csv', 'excel')
+    buttons = list(c('copy'), 
+                   list(extend='csv', filename = "planilha-simulador-fundeb-todos-pela-educacao"),
+                   list(extend='excel', filename = "planilha-simulador-fundeb-todos-pela-educacao"))
   )
   )
   
@@ -200,7 +202,9 @@ server <- function(session, input, output) {
     autoWidth = TRUE,
     ordering = TRUE,
     dom = 'Bftsp',
-    buttons = c('copy', 'csv', 'excel')
+    buttons = list(c('copy'), 
+                   list(extend='csv', filename = "resumo-simulador-fundeb-todos-pela-educacao"),
+                   list(extend='excel', filename = "resumo-simulador-fundeb-todos-pela-educacao"))
   )
   )
 
@@ -282,6 +286,7 @@ server <- function(session, input, output) {
   # Comparação de modelos ====
   data_comparacao <- callModule(compara, "comparacao", alunos = alunos(), ponderador_alunos = ponderador_alunos(), socioeco = socioeco(), financeiro = financeiro())
   
+  # Tabela com os resultados da comparação
   output$dt_comparacao <- DT::renderDataTable({
     data_comparacao()
   },
@@ -294,27 +299,34 @@ server <- function(session, input, output) {
     autoWidth = TRUE,
     ordering = TRUE,
     dom = 'Bftsp',
-    buttons = c('copy', 'csv', 'excel')
+    buttons = list(c('copy'), 
+                   list(extend='csv', filename = "planilha-comparacao-fundeb-todos-pela-educacao"),
+                   list(extend='excel', filename = "planilha-comparacao-fundeb-todos-pela-educacao"))
   )
   )
   
+  # Lista anos usados na comparacao
   anos_usados_comparacao <- reactive({
     unique(data_comparacao()$ano)
   })
   
+  # Atualiza o input na caixa de seleção
   observeEvent(anos_usados_comparacao(), {
     updateSelectInput(session, inputId = "filtro_ano_comparacao", choices = anos_usados_comparacao())
   })
   
+  # Cria uma tabela com todas as combinações de anos e modelos
   mapeamento_ano_modelo <- reactive({
     expand.grid(anos = anos_usados_comparacao(), modelo =  1:2)
   })
   
+  # Cria tabela resumo por ano/modelo
   tabela_resumo <- reactive({
     map2_dfr(mapeamento_ano_modelo()$anos, mapeamento_ano_modelo()$modelo, ~comparacao_resumo(data_comparacao() %>% filter(ano == .x, modelo == .y)) %>% 
                mutate(ano = .x, modelo = .y))
   })
   
+  # Tabela com os resultados do resumo de ano modelo para ser baixada
   output$comparacao_resumo <- DT::renderDataTable({
     tabela_resumo()
   },
@@ -327,7 +339,9 @@ server <- function(session, input, output) {
     autoWidth = TRUE,
     ordering = TRUE,
     dom = 'Bftsp',
-    buttons = c('copy', 'csv', 'excel')
+    buttons = list(c('copy'), 
+                   list(extend='csv', filename = "resumo-comparacao-fundeb-todos-pela-educacao"),
+                   list(extend='excel', filename = "resumo-comparacao-fundeb-todos-pela-educacao"))
   )
   )
   
