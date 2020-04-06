@@ -1,3 +1,5 @@
+# Modulo com a parte de UI de todos os parametros a serem usados no modelo 1 da comparacao
+
 select_comparacao_input_2 <- function(id) {
   ns <- NS(id)
   

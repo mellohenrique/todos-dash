@@ -1,3 +1,5 @@
+# O módulo utilizado para comparar duas simulacoes separadas
+
 compara <- function(input, output, session, alunos, ponderador_alunos, socioeco, financeiro) {
   
   simplifica_text_input <-

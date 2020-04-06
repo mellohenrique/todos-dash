@@ -1,3 +1,7 @@
+# Modulo com a parte do servidor do modelo de simulacao
+# Funcao que receber como input os parametros a serem usados no modelo de simulacao
+
+
 simula <- function(input, output, session, alunos, ponderador_alunos, socioeco, financeiro) {
   simplifica_text_input <-
     function(texto) {

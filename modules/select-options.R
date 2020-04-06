@@ -1,9 +1,4 @@
-#' Variable selection for plot user interface
-#'
-#' @param id, character used to specify namespace, see \code{shiny::\link[shiny]{NS}}
-#'
-#' @return a \code{shiny::\link[shiny]{tagList}} containing UI elements
-#' 
+# Modulo com parte de seleção de opções para a simulacao na UI
 select_options <- function(id) {
   ns <- NS(id)
   
