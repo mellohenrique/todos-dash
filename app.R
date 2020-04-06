@@ -54,10 +54,12 @@ ui <- dashboardPage(
                   uiOutput('markdown_tutorial')
                   ))),
     # Todos tab content ====
-    tabItem(tabName = "todos",
-            fluidPage(box(
-            width = 12,
-            uiOutput('markdown_todos')
+    tabItem(
+      tabName = "todos",
+      fluidPage(
+        box(
+          width = 12,
+          uiOutput('markdown_todos')
             ))),
     # Dashboard tab content ====
     tabItem(
@@ -78,9 +80,13 @@ ui <- dashboardPage(
       fluidRow(
         column(width = 4),
         box(width = 4,
-            selectInput(inputId = "filtro_ano", label = "Selecione ano para medidas resumo", choices = NULL))),
+            selectInput(
+              inputId = "filtro_ano",
+              label = "Selecione ano para medidas resumo",
+              choices = NULL))),
       fluidRow(
-        box(width = 12,
+        box(
+          width = 12,
           plotOutput("vaa_total") %>%  withSpinner()
           )),
       fluidRow(
@@ -118,23 +124,38 @@ ui <- dashboardPage(
               box(title = "Parâmetros do modelo 2",
                 select_comparacao_input_2("comparacao")
               )),
-              fluidRow(column(width = 4),
-                       box(width = 4,
-                           botao_modulo("comparacao")
+              fluidRow(
+                column(width = 4),
+                box(
+                  width = 4,
+                  botao_modulo("comparacao")
                        )),
               fluidRow(
                 column(width = 4),
-                box(width = 4,
-                    selectInput(inputId = "filtro_ano_comparacao", label = "Selecione ano para medidas resumo", choices = NULL))),
-              fluidRow(plotOutput("grafico_resumo_comparacao")),
-              fluidRow(box(width = 12,
-                           DT::dataTableOutput("dt_comparacao"))),
+                box(
+                  width = 4,
+                  selectInput(
+                    inputId = "filtro_ano_comparacao",
+                    label = "Selecione ano para medidas resumo",
+                    choices = NULL))),
+              fluidRow(
+                box(
+                  width = 12,
+                  selectInput(
+                    inputId = "filtro_medidas_comparacao", 
+                    label = "Selecione medidas resumo", choices = c("Média", "Mediana", "Máximo", "Mínimo", "Razão interquartial", "Razão interdecil", "Razão Valor máximo e mínimo", "Desvio Padrão do VAA", "Somatório do Desvio Padrão dos Estados", "Índice de Gini")),
+                  plotOutput("grafico_resumo_comparacao"))),
+              fluidRow(
+                box(
+                  width = 12,
+                  DT::dataTableOutput("dt_comparacao"))),
               fluidRow(
                 column(width = 4),
-                box(boxwidth =  12,
-                       DT::dataTableOutput("comparacao_resumo"))))))
+                box(
+                    width =  12,
+                    DT::dataTableOutput("comparacao_resumo")))))
     
-  )
+  ))
     
     
 
@@ -347,7 +368,8 @@ server <- function(session, input, output) {
   
   output$grafico_resumo_comparacao <- renderPlot({
     tabela_resumo() %>% 
-      filter(ano == input$filtro_ano_comparacao) %>% 
+      filter(ano == input$filtro_ano_comparacao,
+             Medidas == input$filtro_medidas_comparacao) %>% 
       ggplot(aes(x = modelo, fill = as.factor(modelo), y = Valores)) +
                geom_col()+
                facet_wrap(~Medidas, scales = "free") +
