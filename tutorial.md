@@ -206,17 +206,6 @@ O usuário pode inserir tabelas com dados de alunos, peso de alunos por etapa de
 
 ## Opções
 
-Todos os modelos apresentam opções parâmetros customizáveis que permitem ao usuário flexibilidade na análise do financiamento. Certos parâmetros são comuns a todas as funções enquanto outros são específicos. Todas as funções apresentam os seguintes parâmetros:
+Todos os modelos apresentam opções parâmetros customizáveis que permitem ao usuário flexibilidade na análise do financiamento. Certos parâmetros são comuns a todas as funções enquanto outros são específicos. 
 
-* **complem_uniao**: percentual do fundo (somatório dos fundos estaduais) que a União complementará;
-,* **complem_uniao_vat**: percentual do fundo (somatório dos fundos estaduais) que a União complementará na segunda etapa de complementação do modelo VAT;
-* **crescimento_economico**: vetor númerico de crescimento econômico, especificamente do FUNDEB e das demais receitas. O primeiro valor representa a taxa de crescimento do primeiro ano em relação aos dados de finanças colocados como _input_, o segundo valor representa a taxa de crescimento em relação aos valores de finanças do primeiro ano, e assim sucessivamente;
-* **crescimento_demografico**: vetor numérico de crescimento demográfico para alunos.
-* **fatores_equidade**: parâmetro lógico que controla se a equalização do fundo considerara o vetor de alunos ponderados por etapa ou de alunos ponderados por etapa e informações socioeconomicas;
-* **fatores_intra_equidade**: parâmetro logico que controla se a distribuicao do fundo estadual considerara o vetor de alunos ponderados por etapa ou de alunos ponderados por etapa e informações socioeconomicas;
-* **min_social**: peso mínimo dado a informação socioeconômica;
-* **max_social**: peso máximo dado a informação socioeconômica;
-* **min_disp_fiscal**: peso mínimo dado a informação de finanças;
-* **max_disp_fiscal**: peso máximo dado a informação de finanças.
-
-> **_Aviso:_**  É importante que as variáveis **complem_uniao**, **complem_uniao_vat**, **crescimento_economico** e **crescimento_demografico** possua o mesmo tamanho.
+> **_Aviso:_**  É importante que as variáveis colocadas como vetores pelo usuário tenham o mesmo tamanho.
