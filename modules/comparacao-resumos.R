@@ -1,3 +1,8 @@
+# Modulo com dataframe com medidas resumo
+## Tabela criada com dois vetores, 
+## o primeiro com o nome da medida resumo
+## o segundo com os valores de resumo
+
 comparacao_resumo <- function(dados){
   tibble(Medidas = c("Média", "Mediana", "Máximo", "Mínimo", "Razão interquartial", "Razão interdecil", "Razão Valor máximo e mínimo", "Desvio Padrão do VAA", "Somatório do Desvio Padrão dos Estados", "Índice de Gini"),
          Valores = c(
