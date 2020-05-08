@@ -171,6 +171,11 @@ server <- function(session, input, output) {
   # Simula modelos ====
   data <- callModule(simula, "dashboard", alunos = alunos(), ponderador_alunos = ponderador_alunos(), socioeco = socioeco(), financeiro = financeiro())
   
+  data_resumo <- reactive({
+    data() %>% 
+      filter(ano == input$filtro_ano)
+  })
+  
   output$vaa_total <- renderPlot({
     data_resumo() %>% 
       group_by(estado) %>% 
@@ -186,11 +191,6 @@ server <- function(session, input, output) {
   
   observeEvent(anos_usados(), {
     updateSelectInput(session, inputId = "filtro_ano", choices = anos_usados())
-  })
-  
-  data_resumo <- reactive({
-    data() %>% 
-      filter(ano == input$filtro_ano)
   })
   
   output$simulacao <- DT::renderDataTable({
@@ -371,8 +371,7 @@ server <- function(session, input, output) {
       filter(ano == input$filtro_ano_comparacao,
              Medidas == input$filtro_medidas_comparacao) %>% 
       ggplot(aes(x = modelo, fill = as.factor(modelo), y = Valores)) +
-               geom_col()+
-               facet_wrap(~Medidas, scales = "free") +
+               geom_col() +
       labs(fill = "Modelo", x = "Modelo")
   })
   
