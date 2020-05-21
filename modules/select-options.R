@@ -27,7 +27,7 @@ tagList(
   radioButtons(
     inputId = ns("condicao_rede"),
     choiceValues = c(TRUE, FALSE),
-    selected = TRUE,
+    selected = FALSE,
     choiceNames = c("Sim", "Não"),
     label = "Matrículas estaduais de Educação Infantil e matrículas municipais de Ensino Médio são contabilizadas na distribuição?"
   ),

@@ -28,9 +28,9 @@ select_comparacao_input_2 <- function(id) {
     radioButtons(
       inputId = ns("condicao_rede_2"),
       choiceValues = c(TRUE, FALSE),
-      selected = TRUE,
+      selected = FALSE,
       choiceNames = c("Sim", "Não"),
-      label = "Os ponderadores de equidade intraestadual alteram os valores recebidos pela rede estadual?"
+      label = "Matrículas estaduais de Educação Infantil e matrículas municipais de Ensino Médio são contabilizadas na distribuição?"
     ),
     radioButtons(
       inputId = ns("modelo_2"),
