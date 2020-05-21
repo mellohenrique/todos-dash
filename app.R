@@ -144,7 +144,7 @@ ui <- dashboardPage(
                   selectInput(
                     inputId = "filtro_medidas_comparacao", 
                     label = "Selecione medidas resumo", choices = c("Média", "Mediana", "Máximo", "Mínimo", "Razão interquartial", "Razão interdecil", "Razão Valor máximo e mínimo", "Desvio Padrão do VAA", "Somatório do Desvio Padrão dos Estados", "Índice de Gini")),
-                  plotOutput("grafico_resumo_comparacao"))),
+                  plotOutput("grafico_resumo_comparacao") %>%  withSpinner())),
               fluidRow(
                 box(
                   width = 12,
