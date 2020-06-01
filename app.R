@@ -33,11 +33,11 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Como usar", tabName = "tutorial"),
-      menuItem("Dashboard",
+      menuItem("Resultados de modelo único",
                tabName = "dashboard",
                icon = icon("dashboard")
                ),
-      menuItem("Comparação",
+      menuItem(HTML("Resultados de modelos<br>comparados"),
                tabName = "comparacao",
                icon = icon("dashboard")
       ),
