@@ -5,14 +5,14 @@ select_comparacao_input_1 <- function(id) {
   
   tagList(
     radioButtons(
-      inputId = ns("distribuicao_social_1"),
+      inputId = ns("equalizacao_socio_1"),
       choiceValues = c(TRUE, FALSE),
       selected = FALSE,
       choiceNames = c("Sim", "Não"),
       label = "Utiliza ponderadores de equidade na distribuição da complementação da União?"
     ),
     radioButtons(
-      inputId = ns("equalizacao_socio_1"),
+      inputId = ns("fatores_intra_equidade_1"),
       choiceValues = c(TRUE, FALSE),
       selected = FALSE,
       choiceNames = c("Sim", "Não"),
@@ -20,15 +20,15 @@ select_comparacao_input_1 <- function(id) {
     ),
     radioButtons(
       inputId = ns("gov_estado_intraestadual_1"),
-      choiceValues = c(TRUE, FALSE),
-      selected = TRUE,
+      choiceValues = c(FALSE, TRUE),
+      selected = FALSE,
       choiceNames = c("Sim", "Não"),
       label = "Os ponderadores de equidade intraestadual alteram os valores recebidos pela rede estadual?"
     ),
     radioButtons(
       inputId = ns("condicao_rede_1"),
-      choiceValues = c(TRUE, FALSE),
-      selected = FALSE,
+      choiceValues = c(FALSE, TRUE),
+      selected = TRUE,
       choiceNames = c("Sim", "Não"),
       label = "Matrículas estaduais de Educação Infantil e matrículas municipais de Ensino Médio são contabilizadas na distribuição?"
     ),
