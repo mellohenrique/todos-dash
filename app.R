@@ -7,8 +7,8 @@ library(shinydashboard)
 library(shinycssloaders)
 library(simulador.fundeb)
 library(dplyr)
+library(plotly)
 library(knitr)
-library(rbokeh)
 library(ineq)
 
 # Carrega funções e modulos ----
@@ -87,7 +87,7 @@ ui <- dashboardPage(
       fluidRow(
         box(
           width = 12,
-          plotOutput("vaa_total") %>%  withSpinner()
+          plotlyOutput("vaa_total") %>%  withSpinner()
           )),
       fluidRow(
         infoBoxOutput("vaa_medio_ente"),
@@ -144,7 +144,7 @@ ui <- dashboardPage(
                   selectInput(
                     inputId = "filtro_medidas_comparacao", 
                     label = "Selecione medidas resumo", choices = c("Média", "Mediana", "Máximo", "Mínimo", "Razão interquartial", "Razão interdecil", "Razão Valor máximo e mínimo", "Desvio Padrão do VAA", "Somatório do Desvio Padrão dos Estados", "Índice de Gini")),
-                  plotOutput("grafico_resumo_comparacao") %>%  withSpinner())),
+                  plotlyOutput("grafico_resumo_comparacao") %>%  withSpinner())),
               fluidRow(
                 box(
                   width = 12,
@@ -176,13 +176,15 @@ server <- function(session, input, output) {
       filter(ano == input$filtro_ano)
   })
   
-  output$vaa_total <- renderPlot({
-    data_resumo() %>% 
+  output$vaa_total <- renderPlotly({
+    plot <- data_resumo() %>% 
       group_by(estado) %>% 
-      summarise(vaa_final = mean(vaa_final)) %>% 
-      ggplot(aes(x = estado, y = vaa_final)) +
+      summarise(`VAAT Médio` = mean(vaa_final)) %>% 
+      rename(Estado = estado) %>% 
+      ggplot(aes(x = Estado, y = `VAAT Médio`)) +
       geom_col() +
       labs(x = "Estado", y = "VAAT médio")
+    ggplotly(plot)
   })
 
   anos_usados <- reactive({
@@ -366,13 +368,15 @@ server <- function(session, input, output) {
   )
   )
   
-  output$grafico_resumo_comparacao <- renderPlot({
-    tabela_resumo() %>% 
+  output$grafico_resumo_comparacao <- renderPlotly({
+    plot <- tabela_resumo() %>% 
       filter(ano == input$filtro_ano_comparacao,
              Medidas == input$filtro_medidas_comparacao) %>% 
-      ggplot(aes(x = modelo, fill = as.factor(modelo), y = Valores)) +
+      ggplot(aes(x = modelo, fill = as.factor(modelo), y = Valor)) +
                geom_col() +
       labs(fill = "Modelo", x = "Modelo")
+    
+    ggplotly(plot, tooltip = "y")
   })
   
   
